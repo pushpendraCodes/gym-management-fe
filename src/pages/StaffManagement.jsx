@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import TeamManager from "../components/TeamManager";
 
 const StaffManagement = () => {
   return (
-    <div>StaffManagement</div>
-  )
-}
+    <div>
+      <TeamManager />
+    </div>
+  );
+};
 
-export default StaffManagement
+export default StaffManagement;

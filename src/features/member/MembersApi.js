@@ -36,7 +36,7 @@ export const FetchMembers = () => {
   });
 };
 
-export function FilterMember(sort, pagination, search_qurey, filter) {
+export function FilterMember(sort, pagination, search_qurey, filter,subscriptionType) {
   let queryString = "";
   // console.log(search_qurey,"search_qurey")
 
@@ -48,6 +48,9 @@ export function FilterMember(sort, pagination, search_qurey, filter) {
   }
   for (let key in filter) {
     queryString += `${key}=${filter[key]}&`;
+  }
+  for (let key in subscriptionType) {
+    queryString += `${key}=${subscriptionType[key]}&`;
   }
   for (let key in search_qurey) {
     if (search_qurey.search) {
@@ -62,7 +65,7 @@ export function FilterMember(sort, pagination, search_qurey, filter) {
     queryString += `${key}=${pagination[key]}&`;
   }
 
-  // console.log(queryString, "queryString");
+  console.log(queryString, "queryString");
   return new Promise(async (resolve) => {
     let response = await fetch(
       `${import.meta.env.VITE_API_URL}/member/getMembers?${queryString}`,

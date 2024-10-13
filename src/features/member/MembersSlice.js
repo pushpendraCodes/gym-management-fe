@@ -10,13 +10,16 @@ import {
   memberUpadte,
   updateMemberFees,
 } from "./MembersApi";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const initialState = {
   members: [],
   member: {},
   allMemebers: [],
   status: "idle",
-  membersPerPage: 6,
+  membersPerPage: 5,
   totalMembers: "",
   selectedMember: null,
   error: [],
@@ -44,8 +47,8 @@ export const FetchAllMembersAsync = createAsyncThunk(
 // sort ,pagination,search
 export const FilterMemberAsync = createAsyncThunk(
   "member/Filtermember",
-  async ({ sort, pagination, search_qurey, filter }) => {
-    const response = await FilterMember(sort, pagination, search_qurey, filter);
+  async ({ sort, pagination, search_qurey, filter,subscriptionType }) => {
+    const response = await FilterMember(sort, pagination, search_qurey, filter,subscriptionType);
 
     return response;
   }
@@ -131,6 +134,97 @@ export const updateMemberFeesAsync = createAsyncThunk(
     }
   }
 );
+
+// download
+
+
+
+export const generatePDF = (members) => {
+  const doc = new jsPDF();
+const gym = JSON.parse(localStorage.getItem("user"))
+  // Add a title
+  const gymName = gym.gymName;
+  doc.setFontSize(16);
+  doc.text(`${gymName} Members List`, 20, 10);
+
+  // Add an indicator (e.g., * for required fields)
+  doc.setFontSize(12);
+  // doc.text("* Required Fields", 20, 20); // Add indicator
+
+  // Define the table columns
+  const columns = [
+    "ID",
+    "Name",
+    "Mobile",
+    "Gender",
+    "SubsType",
+    "Address",
+    "Training",
+    "DueDate ",   // Add * to indicate this is important
+    "StartDate"
+  ];
+
+  // Function to map numerical values to their corresponding strings
+  const mapGender = (value) => {
+    switch(value) {
+      case "1": return "Male";
+      case "2": return "Female";
+      default: return "Unknown";
+    }
+  };
+
+  const mapSubscriptionType = (value) => {
+    switch(value) {
+      case 1: return "Monthly";
+      case 2: return "Quarterly";
+      case 3: return "Yearly";
+      default: return "Unknown";
+    }
+  };
+
+  const mapTraining = (value) => {
+    // Find the service that matches the serviceNumber
+    const service = gym.servicesOffered.find(item => item.serviceNumber === value);
+    // Return the service name if found, otherwise return "Unknown"
+    return service ? service.serviceName : "Unknown";
+  };
+
+  // Map member details into rows
+  const rows = members.map((member, i) => [
+    i + 1,
+    `${member.firstName} ${member.lastName}`,
+    member.mobile,
+    mapGender(member.gender),               // Convert gender value
+    mapSubscriptionType(member.SubscriptionType), // Convert subscription type
+    member.address,
+    mapTraining(member.training),             // Convert training value
+    new Date(member.dueDate).toLocaleDateString(), // Format date
+    new Date(member.startMonthDate).toLocaleDateString(), // Format date
+  ]);
+
+  // Add the table to the PDF
+  doc.autoTable({
+    head: [columns],
+    body: rows,
+    startY: 30,  // Adjust the starting Y position to make space for text
+  });
+
+  // Save the PDF
+  doc.save("gym-members-list.pdf");
+};
+
+export const exportToExcel = (members) => {
+  // Create a new worksheet
+  const worksheet = XLSX.utils.json_to_sheet(members);
+
+  // Create a new workbook and append the worksheet
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Members");
+
+  // Export the workbook as Excel file
+  XLSX.writeFile(workbook, JSON.parse(localStorage.getItem("user")).gymName+""+ "members-list.xlsx");
+};
+
 export const membersList = createSlice({
   name: "member",
   initialState,

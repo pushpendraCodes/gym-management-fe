@@ -7,8 +7,8 @@ import { FaBedPulse } from "react-icons/fa6";
 import DeleteModal from "../components/DeleteModal";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import usermaleImage from "../images/user-male.avif";
-import userfemaleImage from "../images/user-female.avif";
+import usermaleImage from "../images/user-male.png";
+import userfemaleImage from "../images/user-female.jpeg";
 import {
   selectMembers,
   FilterMemberAsync,
@@ -22,6 +22,9 @@ import {
   getMemberByIdAsync,
   getFeesHistoryAsync,
   deleteMemberAsync,
+  selectAllMembers,
+  generatePDF,
+  exportToExcel,
 } from "../features/member/MembersSlice";
 import { formatDate } from "../utils/Utils";
 import { ImSortAlphaAsc, ImSortAlphaDesc } from "react-icons/im";
@@ -29,12 +32,17 @@ import DropdownFilter from "../components/DropdownFilter";
 import TabelLoader from "../components/TabelLoader";
 import Alert from "../components/Alert";
 import EditModal from "../components/EditModal";
-import { getMemberById } from "../features/member/MembersApi";
+
 import { selectLoggedGym } from "../features/Auth/AuthSlice";
 import TopLoadingBar from "../components/TopLoadingBar";
+
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
+const ALLOWED_FILE_TYPES = ["image/png", "image/jpeg"];
+
 const UserManagament = () => {
   const dispatch = useDispatch();
   const members = useSelector(selectMembers);
+  const allMembers = useSelector(selectAllMembers);
   // console.log(members, "members");
 
   const itemPerPage = useSelector((state) => state.member.membersPerPage);
@@ -52,6 +60,7 @@ const UserManagament = () => {
   const [page, setpage] = useState(1);
   const [searchQuery, setSearch] = useState();
   const [selectedFilter, setSelectedFilter] = useState("");
+  const [subsType, setsubsType] = useState("");
   const handelSort = (e, option) => {
     // console.log(option);
     let NewSort = {
@@ -68,15 +77,25 @@ const UserManagament = () => {
   };
 
   let filter = { filter: selectedFilter };
+  let subscriptionType = { subsType: subsType };
   let pagination = { _limit: itemPerPage, _page: page };
   let search_qurey = { search: searchQuery };
-  useEffect( () => {
+  console.log(subscriptionType, "subscriptionType");
+  useEffect(() => {
     // let token = user.token;
-    dispatch(FilterMemberAsync({ sort, pagination, search_qurey, filter }));
-  }, [dispatch, sort, page, searchQuery, selectedFilter]);
+    dispatch(
+      FilterMemberAsync({
+        sort,
+        pagination,
+        search_qurey,
+        filter,
+        subscriptionType,
+      })
+    );
+  }, [dispatch, sort, page, searchQuery, selectedFilter, subsType]);
 
   // for delete
-  const reloaddata = async() => {
+  const reloaddata = async () => {
     dispatch(FilterMemberAsync({ sort, pagination, search_qurey, filter }));
   };
 
@@ -105,7 +124,7 @@ const UserManagament = () => {
   const [isFormOpen, setFormOpen] = useState(false);
   const [isFeesModalOpen, setFeesModalOpen] = useState(false);
   const [deleteModalOpen, setdeleteModalOpen] = useState(false);
-  const [clickedId, setId] = useState({ type: "", id: "" ,name:""});
+  const [clickedId, setId] = useState({ type: "", id: "", name: "" });
   const [isEditmodal, setEditModal] = useState(false);
 
   // admission form
@@ -114,7 +133,7 @@ const UserManagament = () => {
     lastName: "",
     gender: Number,
     mobile: Number,
-    training: Number,
+    // training: Number,
     training: Number,
     SubscriptionType: Number,
     address: "",
@@ -131,14 +150,37 @@ const UserManagament = () => {
     address,
     payMethode,
   } = form;
-  const [file, setFile] = useState();
+  const [file, setFile] = useState(null);
   const [alert, setAlert] = useState({ message: "", type: "" });
+
   const handelChange = (e) => {
     setform({ ...form, [e.target.name]: e.target.value });
   };
 
   const handelFile = (e) => {
-    setFile(e.target.files[0]);
+    const file = e.target.files[0];
+
+    // File size and type validation
+    if (file) {
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        // setErrorMessage('Only PNG and JPG files are allowed');
+        setAlert({
+          message: "Only PNG and JPG files are allowed!",
+          type: "error",
+        });
+        return;
+      } else if (file.size > MAX_FILE_SIZE) {
+        // setErrorMessage('File size must be less than 1MB');
+        setAlert({
+          message: "File size must be less than 1MB",
+          type: "error",
+        });
+        return;
+      } else {
+        setFile(file);
+        // setpreviewImage(URL.createObjectURL(file));
+      }
+    }
   };
 
   // console.log(SubscriptionType, "SubscriptionType");
@@ -169,7 +211,7 @@ const UserManagament = () => {
 
       // Find the matching service based on the training type
       for (let i = 0; i < loggedGym?.servicesOffered?.length; i++) {
-        if (loggedGym.servicesOffered[i].serviceName === trainingType) {
+        if (loggedGym.servicesOffered[i].serviceNumber === trainingType) {
           console.log("Matching service found");
 
           const serviceChargeForType =
@@ -244,15 +286,46 @@ const UserManagament = () => {
   };
   console.log(form, file, "dwjb");
 
-
-  const handelDelete = async() => {
+  const handelDelete = async () => {
     try {
-     await dispatch(deleteMemberAsync(clickedId.id)).unwrap();
+      await dispatch(deleteMemberAsync(clickedId.id)).unwrap();
       setAlert({ message: "Member deleted successfully!", type: "success" });
-      setdeleteModalOpen(false)
-      reloaddata()
-    } catch (err) { console.log(err, "err");
-      setAlert({ message: `Error: ${ err}`, type: "error" });}
+      setdeleteModalOpen(false);
+      reloaddata();
+    } catch (err) {
+      console.log(err, "err");
+      setAlert({ message: `Error: ${err}`, type: "error" });
+    }
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Toggle the dropdown visibility
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // Close the dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        event.target.closest("#dropdown") === null &&
+        event.target.closest("#menu-button") === null
+      ) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  const getTrainingType = (trainingNumber) => {
+    const service = loggedGym.servicesOffered.find(
+      (service) => service.serviceNumber === trainingNumber
+    );
+    return service ? service.serviceName : "Not Available";
   };
 
   return (
@@ -267,179 +340,440 @@ const UserManagament = () => {
       )}
       {!isFormOpen && (
         <>
-          <header className="px-5 flex justify-between py-4 border-b border-gray-100 dark:border-gray-700/60">
-            <h2 className="font-semibold text-gray-800 dark:text-gray-100">
-              Members
-            </h2>
-            <div className="flex gap-3">
-              <DropdownFilter setSelectedFilter={setSelectedFilter} />
-              <button
-                onClick={() => setFormOpen(true)}
-                title="add new member"
-                className="px-3 py-2 text-white bg-teal-500 border border-gray-200">
-                Add Member +
-              </button>
-            </div>
-          </header>
           <div className="p-3">
             {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="table-auto w-full">
-                {/* Table header */}
-                <thead className="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-700 dark:bg-opacity-50">
-                  <tr>
-                    <th className="p-2 whitespace-nowrap">
-                      <div className="font-semibold text-left">SR.</div>
-                    </th>
-                    <th className="p-2 whitespace-nowrap">
-                      <div className="font-semibold text-left flex gap-2">
-                        <span>Name</span>
-                        {/* <ImSortAlphaAsc className="cursor-pointer" />
-                      <ImSortAlphaDesc className="cursor-pointer" /> */}
+
+            <div class="">
+              <div className="px-5 flex flex-col md:flex-row items-center gap-1 justify-between py-4 border-b border-gray-100 dark:border-gray-700/60">
+                <div className="flex-grow mb-2 md:mb-0">
+                  <h2 className="font-semibold text-gray-800 dark:text-gray-100">
+                    Members
+                  </h2>
+                </div>
+                <div className="relative mb-2 md:mb-0">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 20">
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    onChange={(e) => setSearch(e.target.value)}
+                    id="table-search-users"
+                    title="search using first name, last name, and mobile number"
+                    className="block w-full max-w-xs pl-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none"
+                    placeholder="Search for users"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  {/* Download button */}
+                  <div className="relative inline-block text-left">
+                    <button
+                      id="menu-button"
+                      onClick={toggleDropdown}
+                      className="inline-flex items-center justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-800 focus:outline-none">
+                      Download
+                      <svg
+                        className="-mr-1 ml-2 h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true">
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 9.293a1 1 0 011.414 0L10 12.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+
+                    {isOpen && (
+                      <div
+                        id="dropdown"
+                        className="absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 z-10"
+                        role="menu">
+                        <div
+                          className="py-1"
+                          role="none">
+                          <div
+                            onClick={() => generatePDF(allMembers)}
+                            className="cursor-pointer text-gray-700 block px-4 py-2 text-sm dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            role="menuitem">
+                            PDF
+                          </div>
+                          <div
+                            onClick={() => exportToExcel(allMembers)}
+                            className="cursor-pointer text-gray-700 block px-4 py-2 text-sm dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            role="menuitem">
+                            Excel
+                          </div>
+                        </div>
                       </div>
-                    </th>
-                    <th className="p-2 whitespace-nowrap">
-                      <div className="font-semibold text-left">Mobile</div>
-                    </th>
-                    <th className="p-2 whitespace-nowrap">
-                      <div className="font-semibold text-left">
+                    )}
+                  </div>
+
+                  <DropdownFilter
+                    selectedFilter={selectedFilter}
+                    setsubsType={setsubsType}
+                    setSelectedFilter={setSelectedFilter}
+                    subsType={subsType}
+                  />
+
+                  <button
+                    onClick={() => setFormOpen(true)}
+                    title="add new member"
+                    className="px-3 py-2 text-sm text-white bg-teal-500 border border-gray-200">
+                    Add Member +
+                  </button>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm mt-5 text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="p-4">
+                        Sr.
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3">
+                        Name
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3">
                         Joining Date
-                      </div>
-                    </th>
-                    <th className="p-2 whitespace-nowrap">
-                      <div className="font-semibold text-left">Due Date</div>
-                    </th>
-                    <th className="p-2 whitespace-nowrap">
-                      <div className="font-semibold text-center">
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3">
+                        Fees Due
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3">
                         Training Type
-                      </div>
-                    </th>
-                    <th className="p-2 whitespace-nowrap">
-                      <div className="font-semibold text-center">Action</div>
-                    </th>
-                  </tr>
-                </thead>
-                {/* Table body */}
-                <tbody className="text-sm divide-y divide-gray-100 dark:divide-gray-700/60">
-                  {members ? (
-                    members.map((customer, i) => {
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {members?.map((customer, i) => {
                       return (
-                        <tr key={customer.id}>
-                          <td className="p-2 whitespace-nowrap">
-                            <div className="text-left">
-                              {page * itemPerPage - itemPerPage + (i + 1)}
-                            </div>
+                        <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                          <td className="w-4 py-2">
+                            {page * itemPerPage - itemPerPage + (i + 1)}
                           </td>
-                          <td className="p-2 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className=" mr-2 sm:mr-3">
-                                <img
-                                  className="rounded-full object-cover aspect-square w-14 h-14"
-                                  src={
-                                    customer?.picture
-                                      ? customer.picture
-                                      : customer?.gender === 1
-                                      ? usermaleImage
-                                      : userfemaleImage
-                                  }
-                                  // width="40"
-                                  // height="40"
-                                  alt={customer.name}
-                                />
-                              </div>
-                              <div className="font-medium text-gray-800 dark:text-gray-100">
+                          <th
+                            scope="row"
+                            className="flex items-center px-2 py-2 text-gray-900 whitespace-nowrap dark:text-white">
+                            <img
+                              className="w-10 h-10 rounded-full"
+                              src={
+                                customer?.picture ||
+                                (customer?.gender === 1
+                                  ? usermaleImage
+                                  : userfemaleImage)
+                              }
+                              alt={customer.name}
+                            />
+                            <div className="ps-1">
+                              <div className="text-sm text-base font-normal">
                                 {customer.firstName + " " + customer.lastName}
                               </div>
+                              <div className="font-normal text-xs text-gray-500">
+                                {customer.mobile}
+                              </div>
+                            </div>
+                          </th>
+                          <td className="px-6 py-2">
+                            {new Date(customer.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </td>
+                          <td className="px-6 py-2">
+                            <div
+                              className={`flex items-center ${
+                                new Date(customer.dueDate) < new Date() ||
+                                (new Date(customer.dueDate) - new Date()) /
+                                  (1000 * 60 * 60 * 24) <
+                                  5
+                                  ? "text-red-500"
+                                  : ""
+                              }`}>
+                              {new Date(customer.dueDate).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
                             </div>
                           </td>
-                          <td className="p-2 whitespace-nowrap">
-                            <div className="text-left">{customer.mobile}</div>
+                          <td className="px-6 py-2">
+                            {getTrainingType(customer.training)}
                           </td>
-                          <td className="p-2 whitespace-nowrap">
-                            <div className="text-left font-medium ">
-                              {formatDate(customer.createdAt)}
-                            </div>
-                          </td>
-                          <td className="p-2 whitespace-nowrap">
-                            <div className="text-left font-medium ">
-                              {formatDate(customer.dueDate)}
-                            </div>
-                          </td>
-                          <td className="p-2 whitespace-nowrap">
-                            <div className="font-medium text-center text-gray-800 dark:text-gray-100">
-                              {(customer.training == 1 && "cardio(m)") ||
-                                (customer.training == 2 && "cardio(f)") ||
-                                (customer.training == 3 && "strength") ||
-                                (customer.training == 4 && "Personal ") ||
-                                (customer.training == 5 && "Group ") ||
-                                (customer.training == 6 && "Yoga ")}
-                            </div>
-                          </td>
-                          <td className="p-2 whitespace-nowrap">
-                            <div className="text-sm flex gap-1 text-center">
-                              <button
-                                onClick={() => {
-                                  dispatch(getMemberByIdAsync(customer.id));
-                                  setId({ type: "edit", id: customer.id });
-                                  setEditModal(true);
-                                }}
-                                className="px-2 border border-gray-300">
-                                Edit
-                              </button>
+                          <td className="px-6 py-2 text-sm flex flex-col md:flex-row gap-1 text-center">
+                            <button
+                              onClick={() => {
+                                dispatch(getMemberByIdAsync(customer.id));
+                                setId({ type: "edit", id: customer.id });
+                                setEditModal(true);
+                              }}
+                              className="px-1 border text-xs border-gray-300 mb-1 md:mb-0">
+                              Edit
+                            </button>
 
-                              <EditModal
-                                setAlert={setAlert}
-                                reloaddata={reloaddata}
-                                userId={clickedId.id}
-                                isEditmodal={isEditmodal}
-                                setEditModal={setEditModal}
-                                id="edit"
-                              />
-                              <button
-                                onClick={() => {
-                                  setdeleteModalOpen(true);
-                                  setId({ type: "delete", id: customer.id,name:customer.firstName });
-                                }}
-                                className="px-2 border border-gray-300">
-                                Delete
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  dispatch(getMemberByIdAsync(customer.id));
-                                  dispatch(getFeesHistoryAsync(customer.id));
-                                  setId({ type: "feespay", id: customer.id });
-                                  setFeesModalOpen(true);
-                                }}
-                                aria-controls="fees-modal"
-                                title="fees payment"
-                                className={`px-2 py-1 text-sm text-white bg-emerald-400 border border-gray-200  ${
-                                  isFeesModalOpen &&
-                                  "bg-gray-200 dark:bg-gray-800"
-                                } `}>
-                                Pay Fess
-                              </button>
-                              <FeesModal
-                                id="fees-modal"
-                                // searchId="search"
-                                modalOpen={isFeesModalOpen}
-                                setModalOpen={setFeesModalOpen}
-                                setAlert={setAlert}
-                                reloaddata={reloaddata}
-                                userId={clickedId.id}
-                              />
-                            </div>
+                            <EditModal
+                              setAlert={setAlert}
+                              reloaddata={reloaddata}
+                              userId={clickedId.id}
+                              isEditmodal={isEditmodal}
+                              setEditModal={setEditModal}
+                              id="edit"
+                            />
+                            <button
+                              onClick={() => {
+                                setdeleteModalOpen(true);
+                                setId({
+                                  type: "delete",
+                                  id: customer.id,
+                                  name: customer.firstName,
+                                });
+                              }}
+                              className="px-1 text-xs border border-gray-300 mb-1 md:mb-0">
+                              Delete
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch(getMemberByIdAsync(customer.id));
+                                dispatch(getFeesHistoryAsync(customer.id));
+                                setId({ type: "feespay", id: customer.id });
+                                setFeesModalOpen(true);
+                              }}
+                              aria-controls="fees-modal"
+                              title="Fees Payment"
+                              className={`px-1 text-xs text-white bg-emerald-400 border border-gray-200 ${
+                                isFeesModalOpen &&
+                                "bg-gray-200 dark:bg-gray-800"
+                              }`}>
+                              Pay Fees
+                            </button>
+                            <FeesModal
+                              id="fees-modal"
+                              modalOpen={isFeesModalOpen}
+                              setModalOpen={setFeesModalOpen}
+                              setAlert={setAlert}
+                              reloaddata={reloaddata}
+                              userId={clickedId.id}
+                            />
                           </td>
                         </tr>
                       );
-                    })
-                  ) : (
-                    <p className="text-center">No data Found</p>
-                  )}
-                </tbody>
-              </table>
-              {status == "loading" && status !== "ideal" && <TabelLoader />}
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* <!-- Edit user modal --> */}
+              <div
+                id="editUserModal"
+                tabindex="-1"
+                aria-hidden="true"
+                class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-2xl max-h-full">
+                  {/* <!-- Modal content --> */}
+                  <form class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    {/* <!-- Modal header --> */}
+                    <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Edit user
+                      </h3>
+                      <button
+                        type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="editUserModal">
+                        <svg
+                          class="w-3 h-3"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 14 14">
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                          />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                      </button>
+                    </div>
+                    {/* <!-- Modal body --> */}
+                    <div class="p-6 space-y-6">
+                      <div class="grid grid-cols-6 gap-6">
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="first-name"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            First Name
+                          </label>
+                          <input
+                            type="text"
+                            name="first-name"
+                            id="first-name"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Bonnie"
+                            required=""
+                          />
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="last-name"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Last Name
+                          </label>
+                          <input
+                            type="text"
+                            name="last-name"
+                            id="last-name"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Green"
+                            required=""
+                          />
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="email"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Email
+                          </label>
+                          <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="example@company.com"
+                            required=""
+                          />
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="phone-number"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Phone Number
+                          </label>
+                          <input
+                            type="number"
+                            name="phone-number"
+                            id="phone-number"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="e.g. +(12)3456 789"
+                            required=""
+                          />
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="department"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Department
+                          </label>
+                          <input
+                            type="text"
+                            name="department"
+                            id="department"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Development"
+                            required=""
+                          />
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="company"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Company
+                          </label>
+                          <input
+                            type="number"
+                            name="company"
+                            id="company"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="123456"
+                            required=""
+                          />
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="current-password"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Current Password
+                          </label>
+                          <input
+                            type="password"
+                            name="current-password"
+                            id="current-password"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="••••••••"
+                            required=""
+                          />
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                          <label
+                            for="new-password"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            New Password
+                          </label>
+                          <input
+                            type="password"
+                            name="new-password"
+                            id="new-password"
+                            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="••••••••"
+                            required=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {/* <!-- Modal footer --> */}
+                    <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600">
+                      <button
+                        type="submit"
+                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        Save all
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
+
             {deleteModalOpen && (
               <DeleteModal
                 handelDelete={handelDelete}
@@ -556,7 +890,7 @@ const UserManagament = () => {
 
                 <div className="mb-4">
                   <label className="mb-2 block text-black dark:text-white">
-                    Trainig type <span className="text-meta-1">*</span>
+                    Training type <span className="text-meta-1">*</span>
                   </label>
 
                   <select
@@ -564,15 +898,16 @@ const UserManagament = () => {
                     placeholder="Select training type"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     name="training"
-                    onChange={handelChange}
+                    onChange={handelChange} // Spelling fix: handleChange instead of handelChange
                     id="">
-                    <option value="">select</option>
-                    <option value={1}>cardio(m)</option>
-                    <option value={2}>cardio(f)</option>
-                    <option value={3}>strength Trainings</option>
-                    <option value={4}>personal Trainings</option>
-                    <option value={5}>Group Classes</option>
-                    <option value={6}>Yoga Classes</option>
+                    <option value="">Select</option>
+                    {loggedGym?.servicesOffered?.map((item) => (
+                      <option
+                        key={item.serviceNumber}
+                        value={item.serviceNumber}>
+                        {item.serviceName}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="mb-4">
@@ -595,7 +930,7 @@ const UserManagament = () => {
                 </div>
                 <div className="mb-4">
                   <label className="mb-2 block text-black dark:text-white">
-                    PayMenst Methode <span className="text-meta-1">*</span>
+                    PayMent Methode <span className="text-meta-1">*</span>
                   </label>
 
                   <select

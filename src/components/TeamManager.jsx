@@ -10,7 +10,8 @@ import { selectLoggedGym } from "../features/Auth/AuthSlice";
 import Alert from "./Alert";
 import DeleteModal from "./DeleteModal";
 
-const TeamManager = ({ setAlert }) => {
+const TeamManager = () => {
+  const [alert, setAlert] = useState({ message: "", type: "" });
   const [teamName, setTeamName] = useState("");
   const [teamSalary, setTeamSalary] = useState("");
   const [teamType, setTeamType] = useState("trainer");
@@ -120,7 +121,7 @@ const TeamManager = ({ setAlert }) => {
   };
 
   return (
-    <div className="p-4 bg-white shadow-default dark:border-strokedark dark:bg-boxdark min-h-screen">
+    <div className="p-6 bg-white shadow-default dark:border-strokedark dark:bg-boxdark min-h-screen">
       {deleteModalOpen && (
         <DeleteModal
           // reloaddata={reloaddata}

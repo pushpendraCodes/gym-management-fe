@@ -117,50 +117,49 @@ const ChartTwo = ({gymCreationDate,members}) => {
 
 
   return (
-    <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7 xl:col-span-8">
-      <div className="mb-4  justify-between gap-4 sm:flex">
-      <h4 className="text-xl w-full font-semibold text-black dark:text-white">
-         New Members
-          </h4>
-        <div className="flex w-full max-w-45 justify-end">
-          <div className="relative z-20 inline-block">
-            <select
-              name="year"
-              value={selectedYear}
-              onChange={handleYearChange}
-              className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none">
-              {/* Dynamically populate year options */}
-              {Array.from({
-                length:
-                  new Date().getFullYear() -
-                  new Date(gymCreationDate).getFullYear() +
-                  1,
-              }).map((_, idx) => {
-                const year = new Date(gymCreationDate).getFullYear() + idx;
-                return (
-                  <option
-                    key={year}
-                    value={year}>
-                    {year}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div id="chartTwo" className="-ml-5 -mb-9">
-          <ReactApexChart
-            options={options}
-            series={state.series}
-            type="bar"
-            height={350}
-          />
+    <div className="col-span-12 rounded-sm border border-stroke bg-white px-4 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-5 xl:col-span-8">
+    <div className="mb-4 flex flex-col sm:flex-row justify-between gap-4">
+      <h4 className="text-lg sm:text-xl font-semibold text-black dark:text-white">
+        New Members
+      </h4>
+      <div className="flex w-full sm:w-auto justify-end">
+        <div className="relative inline-block w-full sm:w-auto">
+          <select
+            name="year"
+            value={selectedYear}
+            onChange={handleYearChange}
+            className="w-full sm:w-auto appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none border border-gray-300 rounded-md dark:border-gray-600">
+            {/* Dynamically populate year options */}
+            {Array.from({
+              length:
+                new Date().getFullYear() -
+                new Date(gymCreationDate).getFullYear() +
+                1,
+            }).map((_, idx) => {
+              const year = new Date(gymCreationDate).getFullYear() + idx;
+              return (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              );
+            })}
+          </select>
         </div>
       </div>
     </div>
+
+    <div>
+      <div id="chartTwo" className="overflow-x-auto -ml-2 sm:ml-0">
+        <ReactApexChart
+          options={options}
+          series={state.series}
+          type="bar"
+          height={350}
+        />
+      </div>
+    </div>
+  </div>
+
   );
 };
 

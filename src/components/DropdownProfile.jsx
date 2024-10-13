@@ -4,7 +4,7 @@ import Transition from "../utils/Transition";
 
 import UserAvatar from "../images/user-avatar-32.png";
 import { useSelector } from "react-redux";
-import { authError, logOutAsync } from "../features/Auth/AuthSlice";
+import { authError, logOutAsync, selectLoggedGym } from "../features/Auth/AuthSlice";
 import { useNavigate } from "react-router-dom";
 import Alert from "./Alert";
 import { useDispatch } from "react-redux";
@@ -14,6 +14,9 @@ function DropdownProfile({ align }) {
   const navigate = useNavigate();
   const trigger = useRef(null);
   const dropdown = useRef(null);
+
+  const gym = useSelector(selectLoggedGym)
+
 
   // close on click outside
   useEffect(() => {
@@ -109,7 +112,7 @@ function DropdownProfile({ align }) {
           onBlur={() => setDropdownOpen(false)}>
           <div className="pt-0.5 pb-2 px-3 mb-1 border-b border-gray-200 dark:border-gray-700/60">
             <div className="font-medium text-gray-800 dark:text-gray-100">
-              ABC.
+              {gym?.gymOwnerName}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400 italic">
               Administrator

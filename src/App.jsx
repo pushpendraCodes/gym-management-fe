@@ -17,6 +17,11 @@ import { restoreGymOnRefresh } from "./features/Auth/AuthSlice";
 import { useDispatch } from "react-redux";
 import { AverageMonthlyActiveMember, getPaymentHistoryAsync, RevenueAndProfit } from "./features/gym/GymSlice";
 import { FetchAllMembersAsync } from "./features/member/MembersSlice";
+import ExpensePage from "./pages/ExpensePage";
+import ForgotPassword from "./pages/ForgotPassword";
+import PasswordResetConfirmation from "./pages/PasswordResetConfirmation";
+import SetNewPassword from "./pages/SetNewPassword";
+import EmailCheckComponent from "./pages/EmailCheckComponent ";
 
 
 function App() {
@@ -53,6 +58,26 @@ let dispatch = useDispatch()
           exact
           path="/signin"
           element={<SignInPage />}
+        />
+        <Route
+          exact
+          path="/forgot-pass"
+          element={<ForgotPassword />}
+        />
+        <Route
+          exact
+          path="/forgot-pass-confirmation"
+          element={<PasswordResetConfirmation />}
+        />
+        <Route
+          exact
+          path="/set-new-password"
+          element={<SetNewPassword />}
+        />
+        <Route
+          exact
+          path="/email-check"
+          element={<EmailCheckComponent />}
         />
 
         {/* Routes that use the LayOut component */}
@@ -94,6 +119,15 @@ let dispatch = useDispatch()
                   element={
                     <ProtectedRoute>
                       <ClassTraining />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  exact
+                  path="/expenses"
+                  element={
+                    <ProtectedRoute>
+                      <ExpensePage />
                     </ProtectedRoute>
                   }
                 />

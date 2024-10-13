@@ -114,4 +114,84 @@ export const updateServicesFees = ({services,serviceChange}) => {
     }
   });
 };
+export const forgotPasswordRequest = (email) => {
+  return new Promise(async (resolve, reject) => {
+    // console.log(payload, "payload");
+    try {
+      let response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/request-reset-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // authorization: localStorage.getItem("accessToken"),
+          },
+          body: JSON.stringify({email}),
+        }
+      );
+
+      let data = await response.json();
+
+      if (response.ok) {
+
+        resolve({
+          status: "success",
+          message:data.message
+
+        });
+      } else {
+        reject({
+          status: "error",
+          message: data.message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      reject({
+        status: "error",
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  });
+};
+export const forgotPasswordReset = ({password,token}) => {
+  return new Promise(async (resolve, reject) => {
+    // console.log(payload, "payload");
+    try {
+      let response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/reset-password/${token}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // authorization: localStorage.getItem("accessToken"),
+          },
+          body: JSON.stringify({password}),
+        }
+      );
+
+      let data = await response.json();
+
+      if (response.ok) {
+
+        resolve({
+          status: "success",
+          message:data.message
+
+        });
+      } else {
+        reject({
+          status: "error",
+          message: data.message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      reject({
+        status: "error",
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  });
+};
 

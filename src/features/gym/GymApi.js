@@ -316,3 +316,87 @@ export const getPaymentHistory = () => {
     }
   });
 };
+export const addservices = (body) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = await fetch(
+        `${import.meta.env.VITE_API_URL}/gym/add-service`,
+
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: localStorage.getItem("accessToken"),
+          },
+          body:JSON.stringify(body)
+        }
+      );
+      let data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(data.gym));
+        resolve({
+          status: "success",
+          data: data.gym,
+        });
+      } else {
+        reject({
+          status: "error",
+          message: data.error,
+        });
+      }
+
+      // console.log(data, "payment");
+
+      //   resolve(data);
+    } catch (error) {
+      console.log(error);
+      reject({
+        status: "error",
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  });
+};
+export const updateGymProfile = (formData) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = await fetch(
+        `${import.meta.env.VITE_API_URL}/gym/update-profile`,
+
+        {
+          method: "PUT",
+          headers: {
+            // "Content-Type": "application/json",
+            authorization: localStorage.getItem("accessToken"),
+          },
+          body:formData
+        }
+      );
+      let data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(data.gym));
+        resolve({
+          status: "success",
+          data: data.gym,
+        });
+      } else {
+        reject({
+          status: "error",
+          message: data.error,
+        });
+      }
+
+      // console.log(data, "payment");
+
+      //   resolve(data);
+    } catch (error) {
+      console.log(error);
+      reject({
+        status: "error",
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  });
+};

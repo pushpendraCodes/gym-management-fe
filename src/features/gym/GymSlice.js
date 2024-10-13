@@ -2,12 +2,14 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import {
   addExpense,
+  addservices,
   addTeam,
   deleteExpense,
   deleteTeam,
   EditExpense,
   FetchGym,
   getPaymentHistory,
+  updateGymProfile,
   updateTeam,
 
 } from "./GymApi";
@@ -124,6 +126,34 @@ export const EditExpenseAsync = createAsyncThunk(
     try {
       // console.log(data,"teamsdata")
       const response = await EditExpense(body);
+      console.log(response, "gymResponse");
+      return response.data;
+    } catch (error) {
+      console.error(error); // Log the error for debugging
+      return rejectWithValue(error.message || "Failed to add team");
+    }
+  }
+);
+export const addservicesAsync = createAsyncThunk(
+  "gym/add-services",
+  async (body, { rejectWithValue }) => {
+    try {
+      // console.log(data,"teamsdata")
+      const response = await addservices(body);
+      console.log(response, "gymResponse");
+      return response.data;
+    } catch (error) {
+      console.error(error); // Log the error for debugging
+      return rejectWithValue(error.message || "Failed to add team");
+    }
+  }
+);
+export const updateGymProfileAsync = createAsyncThunk(
+  "gym/update-profile",
+  async (body, { rejectWithValue }) => {
+    try {
+      // console.log(data,"teamsdata")
+      const response = await updateGymProfile(body);
       console.log(response, "gymResponse");
       return response.data;
     } catch (error) {
@@ -314,10 +344,6 @@ export function calculateAverageMembers(payHistory, gymCreationDate) {
 
 
 
-// console.log("Average Members Per Month:", averageMembers);
-
-
-
 export function formatCurrency(amount) {
   const absAmount = Math.abs(amount); // Get absolute value for formatting
   let formattedAmount = "";
@@ -341,6 +367,8 @@ export function formatCurrency(amount) {
 }
 
 
+
+
 export const GymSlice = createSlice({
   name: "gym",
   initialState,
@@ -357,6 +385,7 @@ export const GymSlice = createSlice({
     AverageMonthlyActiveMember: (state) => {
       const gym = JSON.parse(localStorage.getItem("user"));
       const averageMembers = calculateAverageMembers(state.payHistory, gym.createdAt);
+      console.log(averageMembers,"averageMembers")
       state.monthlyActiveMember = averageMembers;
     },
   },

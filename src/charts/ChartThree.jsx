@@ -183,102 +183,103 @@ const ChartThree = ({ members }) => {
   console.log(subscriptionSeries,"subscriptionSeries")
 
   return (
-    <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7 xl:col-span-8">
-      {/* Gender Breakdown Chart */}
-      <div className="chart-container">
-        <h3 className="text-center font-semibold text-black dark:text-white">
-          Gender Breakdown
-        </h3>
-        <div className="flex gap-5 items-center">
-          <ReactApexChart
-            options={genderOptions}
-            series={genderSeries}
-            type="donut"
-            height={300}
-          />
-          <div className="flex justify-center mt-4">
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#1E90FF] mr-2"></span>
-              <span>Male</span>
-            </div>
-            <div className="flex items-center">
-              <span className="block h-3 w-3 rounded-full bg-[#FF1493] mr-2"></span>
-              <span>Female</span>
-            </div>
-          </div>
+    <div className="col-span-12 rounded-sm border border-stroke bg-white px-4 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-6 xl:col-span-8">
+  {/* Gender Breakdown Chart */}
+  <div className="chart-container">
+    <h3 className="text-center font-semibold text-black dark:text-white">
+      Gender Breakdown
+    </h3>
+    <div className="flex flex-col md:flex-row gap-5 items-center justify-center md:justify-between">
+      <ReactApexChart
+        options={genderOptions}
+        series={genderSeries}
+        type="donut"
+        height={300}
+      />
+      <div className="flex justify-center mt-4">
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#1E90FF] mr-2"></span>
+          <span>Male</span>
         </div>
-      </div>
-
-      {/* Training Breakdown Chart */}
-      <div className="chart-container mt-5">
-        <h3 className="text-center font-semibold text-black dark:text-white">
-          Training Type Breakdown
-        </h3>
-        <div className="flex gap-5">
-          <ReactApexChart
-            options={trainingOptions}
-            series={trainingSeries}
-            type="donut"
-            height={300}
-          />
-          <div className="flex flex-wrap gap-2  mt-4">
-            <div className="flex items-center mr-4 ">
-              <span className="block h-3 w-3 rounded-full bg-[#1F77B4] mr-2"></span>
-              <span className="text-sm">Cardio-M</span>
-            </div>
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#E377C2] mr-2"></span>
-              <span className="text-sm">Cardio-F</span>
-            </div>
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#2CA02C] mr-2"></span>
-              <span className="text-sm">Strength</span>
-            </div>
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#FF7F0E] mr-2"></span>
-              <span className="text-sm">Personal Training</span>
-            </div>
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#D62728] mr-2"></span>
-              <span className="text-sm">Group Classes</span>
-            </div>
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#9467BD] mr-2"></span>
-              <span className="text-sm">Yoga Classes</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-       {/* Subscription Breakdown Chart */}
-       <div className="chart-container mt-5">
-        <h3 className="text-center font-semibold text-black dark:text-white">
-          Subscription Type Breakdown
-        </h3>
-        <div className="flex gap-5">
-          <ReactApexChart
-            options={subscriptionOptions}
-            series={subscriptionSeries}
-            type="donut"
-            height={300}
-          />
-          <div className="flex flex-wrap mt-4">
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#008FFB] mr-2"></span>
-              <span className="text-sm">Monthly</span>
-            </div>
-            <div className="flex items-center mr-4">
-              <span className="block h-3 w-3 rounded-full bg-[#FEB019] mr-2"></span>
-              <span className="text-sm">Quarterly</span>
-            </div>
-            <div className="flex items-center">
-              <span className="block h-3 w-3 rounded-full bg-[#00E396] mr-2"></span>
-              <span className="text-sm">Yearly</span>
-            </div>
-          </div>
+        <div className="flex items-center">
+          <span className="block h-3 w-3 rounded-full bg-[#FF1493] mr-2"></span>
+          <span>Female</span>
         </div>
       </div>
     </div>
+  </div>
+
+  {/* Training Breakdown Chart */}
+  <div className="chart-container mt-5">
+    <h3 className="text-center font-semibold text-black dark:text-white">
+      Training Type Breakdown
+    </h3>
+    <div className="flex flex-col md:flex-row gap-5 items-center justify-center md:justify-between">
+      <ReactApexChart
+        options={trainingOptions}
+        series={trainingSeries}
+        type="donut"
+        height={300}
+      />
+      <div className="flex flex-wrap justify-center gap-2 mt-4">
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#1F77B4] mr-2"></span>
+          <span className="text-sm">Cardio-M</span>
+        </div>
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#E377C2] mr-2"></span>
+          <span className="text-sm">Cardio-F</span>
+        </div>
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#2CA02C] mr-2"></span>
+          <span className="text-sm">Strength</span>
+        </div>
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#FF7F0E] mr-2"></span>
+          <span className="text-sm">Personal Training</span>
+        </div>
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#D62728] mr-2"></span>
+          <span className="text-sm">Group Classes</span>
+        </div>
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#9467BD] mr-2"></span>
+          <span className="text-sm">Yoga Classes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Subscription Breakdown Chart */}
+  <div className="chart-container mt-5">
+    <h3 className="text-center font-semibold text-black dark:text-white">
+      Subscription Type Breakdown
+    </h3>
+    <div className="flex flex-col md:flex-row gap-5 items-center justify-center md:justify-between">
+      <ReactApexChart
+        options={subscriptionOptions}
+        series={subscriptionSeries}
+        type="donut"
+        height={300}
+      />
+      <div className="flex flex-wrap justify-center mt-4">
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#008FFB] mr-2"></span>
+          <span className="text-sm">Monthly</span>
+        </div>
+        <div className="flex items-center mr-4">
+          <span className="block h-3 w-3 rounded-full bg-[#FEB019] mr-2"></span>
+          <span className="text-sm">Quarterly</span>
+        </div>
+        <div className="flex items-center">
+          <span className="block h-3 w-3 rounded-full bg-[#00E396] mr-2"></span>
+          <span className="text-sm">Yearly</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
   );
 };
 

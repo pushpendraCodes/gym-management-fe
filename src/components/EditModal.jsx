@@ -10,6 +10,7 @@ import {
   selectMember,
 } from "../features/member/MembersSlice";
 import { getMemberById } from "../features/member/MembersApi";
+import { selectLoggedGym } from "../features/Auth/AuthSlice";
 
 function EditModal({
   id,
@@ -20,7 +21,7 @@ function EditModal({
   setAlert,
 }) {
   const dispatch = useDispatch();
-
+  const loggedGym = useSelector(selectLoggedGym);
   const member = useSelector(selectMember);
   //   console.log(member, "memberedit");
 
@@ -32,6 +33,7 @@ function EditModal({
       mobile: member.mobile,
       training: member.training,
       address: member.address,
+      SubscriptionType:member.SubscriptionType
     });
   }, [member]);
 
@@ -43,8 +45,21 @@ function EditModal({
     gender: Number,
     mobile: Number,
     training: Number,
+    SubscriptionType: Number,
     address: "",
+
   });
+
+  const {
+    firstName,
+    lastName,
+    gender,
+    mobile,
+    training,
+    SubscriptionType,
+    address,
+
+  } = form;
 
   const handelChange = (e) => {
     const { name, value } = e.target;
@@ -54,10 +69,58 @@ function EditModal({
     });
   };
 
+
+  const [subscriptionFees, setsubscriptionFees] = useState();
+
+  useEffect(() => {
+    if (loggedGym && training && SubscriptionType) {
+      const trainingType = Number(training); // Convert training to number
+      const SubscriptionTypeNumber = Number(SubscriptionType); // Convert training to number
+
+      // Map numeric SubscriptionType (enum) to the corresponding string
+      let subscriptionTypeKey = "";
+      switch (SubscriptionTypeNumber) {
+        case 1:
+          subscriptionTypeKey = "monthly";
+          break;
+        case 2:
+          subscriptionTypeKey = "quarterly";
+          break;
+        case 3:
+          subscriptionTypeKey = "yearly";
+          break;
+        default:
+          console.error("Invalid SubscriptionType");
+          return;
+      }
+
+      // Find the matching service based on the training type
+      for (let i = 0; i < loggedGym?.servicesOffered?.length; i++) {
+        if (loggedGym.servicesOffered[i].serviceNumber === trainingType) {
+          console.log("Matching service found");
+
+          const serviceChargeForType =
+            loggedGym.servicesOffered[i].serviceCharge[subscriptionTypeKey]; // Get the charge based on the mapped subscription type
+
+          if (serviceChargeForType) {
+            setsubscriptionFees(serviceChargeForType);
+          } else {
+            console.error("No charge found for the selected subscription type");
+          }
+          break; // Exit loop once a match is found
+        }
+      }
+    } else {
+      console.log("Gym, training, or subscription type not found");
+    }
+  }, [loggedGym, training, SubscriptionType]);
+
   const error = useSelector(selectError);
   const handelSubmit = async (e) => {
     e.preventDefault();
     try {
+      let fees = subscriptionFees;
+      form.fees = fees
       let data = { id: userId, body: form };
       await dispatch(memberUpadteAsync(data)).unwrap();
       setEditModal(false);
@@ -69,29 +132,6 @@ function EditModal({
       setAlert({ message: `Error: ${err}`, type: "error" });
     }
   };
-  //   close on click outside
-  // useEffect(() => {
-  //   const clickHandler = ({ target }) => {
-  //     if (!isEditmodal || modalContent.current.contains(target)) return;
-  //     setEditModal(false);
-  //   };
-  //   document.addEventListener("click", clickHandler);
-  //   return () => document.removeEventListener("click", clickHandler);
-  // });
-
-  // close if the esc key is pressed
-  //   useEffect(() => {
-  //     const keyHandler = ({ keyCode }) => {
-  //       if (!modalOpen || keyCode !== 27) return;
-  //       setModalOpen(false);
-  //     };
-  //     document.addEventListener("keydown", keyHandler);
-  //     return () => document.removeEventListener("keydown", keyHandler);
-  //   });
-
-  //   useEffect(() => {
-  //     modalOpen && searchInput.current.focus();
-  //   }, [modalOpen]);
 
   return (
     <>
@@ -236,12 +276,32 @@ function EditModal({
                     onChange={handelChange}
                     id="">
                     <option value="">select</option>
-                    <option value={1}>cardio(m)</option>
-                    <option value={2}>cardio(f)</option>
-                    <option value={3}>strength</option>
-                    <option value={4}>personal</option>
-                    <option value={5}>Group</option>
-                    <option value={6}>Yoga</option>
+                    {loggedGym?.servicesOffered?.map((item) => (
+                      <option
+                        key={item.serviceNumber}
+                        value={item.serviceNumber}>
+                        {item.serviceName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-left text-black dark:text-white">
+                    Subscription type <span className="text-meta-1">*</span>
+                  </label>
+
+                  <select
+                    required
+                    value={form?.SubscriptionType || ""}
+                    placeholder="Select Subscription type"
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    name="SubscriptionType"
+                    onChange={handelChange}
+                    id="">
+                    <option value="">select</option>
+                    <option value={1}>Monthly</option>
+                    <option value={2}>Quaterly</option>
+                    <option value={3}>Yearly</option>
                   </select>
                 </div>
 

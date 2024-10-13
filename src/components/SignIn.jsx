@@ -5,7 +5,7 @@ import {
   selectAuthstatus,
   SignInAsync,
 } from "../features/Auth/AuthSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Alert from "./Alert";
 import TopLoadingBar from "./TopLoadingBar";
@@ -91,11 +91,11 @@ const SignIn = () => {
               />
               <span className="ml-2 text-sm text-gray-600">Remember Me</span>
             </label> */}
-            <a
-              href="#"
+            <Link
+              to="/forgot-pass"
               className="text-sm text-purple-500 hover:underline">
               Forgot Password?
-            </a>
+            </Link>
           </div>
           <button
             type="submit"

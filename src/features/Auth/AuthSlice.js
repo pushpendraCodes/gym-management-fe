@@ -1,17 +1,20 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import {
-
+  forgotPasswordRequest,
+  forgotPasswordReset,
   GymSignIn,
   GymSignOut,
   updateServicesFees,
 } from "./AuthApi";
 import {
   addExpenseAsync,
+  addservicesAsync,
   addTeamAsync,
   deleteExpenseAsync,
   deleteTeamAsync,
   EditExpenseAsync,
+  updateGymProfileAsync,
   updateTeamAsync,
 } from "../gym/GymSlice";
 
@@ -22,7 +25,6 @@ const initialState = {
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
-
 };
 
 export const SignInAsync = createAsyncThunk(
@@ -66,7 +68,32 @@ export const updateServicesFeesAsync = createAsyncThunk(
     }
   }
 );
-
+export const forgotPasswordRequestAsync = createAsyncThunk(
+  "auth/forgotPasswordRequest",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await forgotPasswordRequest(email);
+      // console.log(response, "gymResponse");
+      return response;
+    } catch (error) {
+      console.error(error); // Log the error for debugging
+      return rejectWithValue(error.message || "Failed to reset password request");
+    }
+  }
+);
+export const forgotPasswordResetAsync = createAsyncThunk(
+  "auth/forgotPasswordReset",
+  async ({password,token}, { rejectWithValue }) => {
+    try {
+      const response = await forgotPasswordReset({password,token});
+      // console.log(response, "authresposen");
+      return response;
+    } catch (error) {
+      console.error(error); // Log the error for debugging
+      return rejectWithValue(error.message || "Failed to reset password");
+    }
+  }
+);
 
 // restore Gym data on refersh
 
@@ -223,7 +250,60 @@ export const AuthSlice = createSlice({
         state.status = "idle";
         state.error = action.payload;
       });
+    builder
+      .addCase(addservicesAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(addservicesAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        console.log(action.payload, "action payload");
 
+        // Update the state with the gym object
+        state.loggedGym = action.payload; // This is now the gym object from the response
+      })
+      .addCase(addservicesAsync.rejected, (state, action) => {
+        state.status = "idle";
+        state.error = action.payload;
+      });
+    builder
+      .addCase(updateGymProfileAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateGymProfileAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        console.log(action.payload, "action payload");
+
+        // Update the state with the gym object
+        state.loggedGym = action.payload; // This is now the gym object from the response
+      })
+      .addCase(updateGymProfileAsync.rejected, (state, action) => {
+        state.status = "idle";
+        state.error = action.payload;
+      });
+    builder
+      .addCase(forgotPasswordRequestAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(forgotPasswordRequestAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        console.log(action.payload, "action payload");
+      })
+      .addCase(forgotPasswordRequestAsync.rejected, (state, action) => {
+        state.status = "idle";
+        state.error = action.payload;
+      });
+    builder
+      .addCase(forgotPasswordResetAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(forgotPasswordResetAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        console.log(action.payload, "action payload");
+      })
+      .addCase(forgotPasswordResetAsync.rejected, (state, action) => {
+        state.status = "idle";
+        state.error = action.payload;
+      });
   },
 });
 

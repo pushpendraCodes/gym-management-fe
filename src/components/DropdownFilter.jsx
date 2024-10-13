@@ -1,47 +1,43 @@
 import React, { useState, useRef, useEffect } from "react";
 import Transition from "../utils/Transition";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FilterMemberAsync, selectMembers } from "../features/member/MembersSlice";
+import { selectLoggedGym } from "../features/Auth/AuthSlice";
 
-function DropdownFilter({ align, setSelectedFilter}) {
+function DropdownFilter({ align,subsType, setsubsType,setSelectedFilter,selectedFilter }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const loggedGym = useSelector(selectLoggedGym);
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  //Clear  filtres on click clear button
+  // Dynamic refs stored in an object for different filters
+  const Checkrefs = useRef({});
 
-  const Checkrefs = {
-    Oldest: useRef(null),
-    Newest: useRef(null),
-    Females: useRef(null),
-    Males: useRef(null),
-    Cardio: useRef(null),
-    Strength: useRef(null),
-    PersonalTrainee: useRef(null),
-    GroupTrainee: useRef(null),
-    YogaTrainee: useRef(null),
-    DueSoon: useRef(null), //due in 5 days
-    OverDue: useRef(null),
-  };
-
+  // Handle filter reset
   const handleFilters = () => {
-    Object.keys(Checkrefs).forEach((key) => {
-      if (Checkrefs[key].current.checked) {
-        Checkrefs[key].current.checked = false;
+    // Reset all the checkboxes
+    Object.keys(Checkrefs.current).forEach((key) => {
+      if (Checkrefs.current[key] && Checkrefs.current[key].checked) {
+        Checkrefs.current[key].checked = false;
       }
     });
-    setSelectedFilter(""); // Clear selected filter state
+
+    // If the selected filter isn't already empty, update it
+    if (selectedFilter !== "") {
+      setSelectedFilter(""); // Clear selected filter state
+    }
+    if(subsType !== ""){
+      setsubsType("")
+    }
   };
 
-  // get filter value
+  // Get filter value on radio button change
   const handleRadioChange = (event) => {
-    setSelectedFilter(event.target.value); // Get the value of the selected radio
+    setSelectedFilter(event.target.value); // Set selected filter
     console.log("Selected filter:", event.target.value);
   };
 
-  // close on click outside
+  // Close dropdown when clicking outside
   useEffect(() => {
     const clickHandler = ({ target }) => {
       if (!dropdown.current) return;
@@ -55,9 +51,9 @@ function DropdownFilter({ align, setSelectedFilter}) {
     };
     document.addEventListener("click", clickHandler);
     return () => document.removeEventListener("click", clickHandler);
-  });
+  }, [dropdownOpen]);
 
-  // close if the esc key is pressed
+  // Close dropdown when pressing the 'esc' key
   useEffect(() => {
     const keyHandler = ({ keyCode }) => {
       if (!dropdownOpen || keyCode !== 27) return;
@@ -65,10 +61,9 @@ function DropdownFilter({ align, setSelectedFilter}) {
     };
     document.addEventListener("keydown", keyHandler);
     return () => document.removeEventListener("keydown", keyHandler);
-  });
+  }, [dropdownOpen]);
 
   const dispatch = useDispatch();
-
 
   return (
     <div className="relative inline-flex">
@@ -107,10 +102,11 @@ function DropdownFilter({ align, setSelectedFilter}) {
             Filters
           </div>
           <ul className="mb-4">
+            {/* Predefined Filters */}
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input
-                  ref={Checkrefs.Oldest}
+                  ref={(el) => (Checkrefs.current["Oldest"] = el)}
                   type="radio"
                   name="filter"
                   value="oldest"
@@ -125,7 +121,7 @@ function DropdownFilter({ align, setSelectedFilter}) {
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input
-                  ref={Checkrefs.Newest}
+                  ref={(el) => (Checkrefs.current["Newest"] = el)}
                   type="radio"
                   name="filter"
                   value="newest"
@@ -141,10 +137,10 @@ function DropdownFilter({ align, setSelectedFilter}) {
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input
-                  ref={Checkrefs.Females}
+                  ref={(el) => (Checkrefs.current["Females"] = el)}
                   type="radio"
                   name="filter"
-                  value="G-2" //female-2 is considered in backend
+                  value="G-2"
                   onChange={handleRadioChange}
                   className="form-radio"
                 />
@@ -156,96 +152,15 @@ function DropdownFilter({ align, setSelectedFilter}) {
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input
-                  ref={Checkrefs.Males}
+                  ref={(el) => (Checkrefs.current["Males"] = el)}
                   type="radio"
                   name="filter"
-                  value="G-1" //male-1 is considered in backend
+                  value="G-1"
                   onChange={handleRadioChange}
                   className="form-radio"
                 />
                 <span className="text-sm font-medium ml-2">
-                  {" "}
                   Male Members Only
-                </span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input
-                  ref={Checkrefs.Cardio}
-                  type="radio"
-                  name="filter"
-                  value="T-1" //trainign-2 for cardio is considered in backend
-                  onChange={handleRadioChange}
-                  className="form-radio"
-                />
-                <span className="text-sm font-medium ml-2">
-                  {" "}
-                  Cardio Trainees
-                </span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input
-                  ref={Checkrefs.Strength}
-                  type="radio"
-                  name="filter"
-                  value="T-3" //trainign-2 for cardio is considered in backend
-                  onChange={handleRadioChange}
-                  className="form-radio"
-                />
-                <span className="text-sm font-medium ml-2">
-                  {" "}
-                  Strength Trainees
-                </span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input
-                  ref={Checkrefs.PersonalTrainee}
-                  type="radio"
-                  name="filter"
-                  value="T-4" //trainign-4 for personal tranee is considered in backend
-                  onChange={handleRadioChange}
-                  className="form-radio"
-                />
-                <span className="text-sm font-medium ml-2">
-                  {" "}
-                  Personal Trainees
-                </span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input
-                  ref={Checkrefs.GroupTrainee}
-                  type="radio"
-                  name="filter"
-                  value="T-5" //trainign-4 for personal tranee is considered in backend
-                  onChange={handleRadioChange}
-                  className="form-radio"
-                />
-                <span className="text-sm font-medium ml-2">
-                  {" "}
-                  Group Trainees
-                </span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input
-                  ref={Checkrefs.YogaTrainee}
-                  type="radio"
-                  name="filter"
-                  value="T-6" //trainign-4 for personal tranee is considered in backend
-                  onChange={handleRadioChange}
-                  className="form-radio"
-                />
-                <span className="text-sm font-medium ml-2">
-                  {" "}
-                  Yoga Trainees
                 </span>
               </label>
             </li>
@@ -253,7 +168,7 @@ function DropdownFilter({ align, setSelectedFilter}) {
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input
-                  ref={Checkrefs.DueSoon}
+                  ref={(el) => (Checkrefs.current["DueSoon"] = el)}
                   type="radio"
                   name="filter"
                   value="duesoon"
@@ -266,7 +181,7 @@ function DropdownFilter({ align, setSelectedFilter}) {
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input
-                  ref={Checkrefs.OverDue}
+                  ref={(el) => (Checkrefs.current["OverDue"] = el)}
                   type="radio"
                   name="filter"
                   value="overdue"
@@ -278,7 +193,33 @@ function DropdownFilter({ align, setSelectedFilter}) {
                 </span>
               </label>
             </li>
+            <hr />
+
+            <h3 className="font-medium text-sm text-blue-400 ml-3 my-2 dark:text-white">
+              By Subscription Type
+            </h3>
+            {/* Dynamic Filter for Gym Services */}
+            {loggedGym?.servicesOffered.map((item) => {
+              return (
+                <li key={item.serviceNumber} className="py-1 px-3">
+                  <label className="flex items-center">
+                    <input
+                      ref={(el) => (Checkrefs.current[`service-${item.serviceNumber}`] = el)}
+                      type="radio"
+                      name="filter"
+                      value={item.serviceNumber}
+                      onChange={(e)=>setsubsType(e.target.value)}
+                      className="form-radio"
+                    />
+                    <span className="text-sm font-medium ml-2">
+                      {item.serviceName}
+                    </span>
+                  </label>
+                </li>
+              );
+            })}
           </ul>
+
           <div className="py-2 px-3 border-t border-gray-200 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-700/20">
             <ul className="flex items-center justify-between">
               <li>
@@ -288,14 +229,6 @@ function DropdownFilter({ align, setSelectedFilter}) {
                   Clear
                 </button>
               </li>
-              {/* <li>
-                <button
-                  className="btn-xs bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-800 dark:hover:bg-white"
-                  onClick={() => setDropdownOpen(false)}
-                  onBlur={() => setDropdownOpen(false)}>
-                  Apply
-                </button>
-              </li> */}
             </ul>
           </div>
         </div>

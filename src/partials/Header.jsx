@@ -5,9 +5,12 @@ import Notifications from "../components/DropdownNotifications";
 import Help from "../components/DropdownHelp";
 import UserMenu from "../components/DropdownProfile";
 import ThemeToggle from "../components/ThemeToggle";
+import { useSelector } from "react-redux";
+import { selectLoggedGym } from "../features/Auth/AuthSlice";
 
 function Header({ sidebarOpen, setSidebarOpen, variant = "default" }) {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  let gym = useSelector(selectLoggedGym)
 
   return (
     <header
@@ -28,7 +31,7 @@ function Header({ sidebarOpen, setSidebarOpen, variant = "default" }) {
           {/* Header: Left side */}
           <div className="flex ">
             <h1 className="text-center hidden  md:block lg:block xl:block text-lg">
-              Royal Fitness Gym & Yoga center
+              {gym?.gymName}
             </h1>
             {/* Hamburger button */}
             <button

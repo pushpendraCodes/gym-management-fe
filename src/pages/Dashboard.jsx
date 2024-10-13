@@ -3,7 +3,6 @@ import CardDataStats from "../partials/dashboard/CardDataStatus";
 import ChartOne from "../charts/ChartOne";
 import ChartTwo from "../charts/ChartTwo";
 import ChartThree from "../charts/ChartThree";
-import MapOne from "../maps/MapOne";
 import Alert from "../components/Alert";
 import { useSelector } from "react-redux";
 import {
@@ -26,24 +25,17 @@ function Dashboard() {
 
   const [alert, setAlert] = useState({ message: "", type: "" });
   useEffect(() => {
-    // Check if the user just logged in
     const justLoggedIn = localStorage.getItem("justLoggedIn");
 
     if (justLoggedIn) {
-      setAlert({ message: "user login successfully!", type: "success" });
-
-      // Remove the flag so the message won't show again during the session
+      setAlert({ message: "User login successfully!", type: "success" });
       localStorage.removeItem("justLoggedIn");
     }
   }, []);
 
-  // filter state
-
-  // console.log(revenue, "revenue");
-
   return (
     <>
-      <div className=" gap-4   ">
+      <div className="gap-4">
         {alert.message && (
           <Alert
             message={alert.message}
@@ -59,7 +51,8 @@ function Dashboard() {
             height="16"
             viewBox="0 0 22 16"
             fill="none"
-            xmlns="http://www.w3.org/2000/svg">
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
               d="M11 15.1156C4.19376 15.1156 0.825012 8.61876 0.687512 8.34376C0.584387 8.13751 0.584387 7.86251 0.687512 7.65626C0.825012 7.38126 4.19376 0.918762 11 0.918762C17.8063 0.918762 21.175 7.38126 21.3125 7.65626C21.4156 7.86251 21.4156 8.13751 21.3125 8.34376C21.175 8.61876 17.8063 15.1156 11 15.1156ZM2.26876 8.00001C3.02501 9.27189 5.98126 13.5688 11 13.5688C16.0188 13.5688 18.975 9.27189 19.7313 8.00001C18.975 6.72814 16.0188 2.43126 11 2.43126C5.98126 2.43126 3.02501 6.72814 2.26876 8.00001Z"
               fill=""
@@ -72,20 +65,17 @@ function Dashboard() {
         </CardDataStats>
       </div>
 
-      <div className="mt-4 grid grid-cols-1  md:grid-cols-1 xl:grid-cols-1   gap-4 md:mt-6 md:gap-6 2xl:mt-7 2xl:gap-7">
+      {/* Responsive Chart Layout */}
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 md:mt-6 md:gap-6 2xl:mt-7 2xl:gap-7">
+        {/* Charts will stack vertically on small screens and use grid layout on larger screens */}
         <ChartOne
           payHistory={paymentHistory}
           gymCreationDate={gym.createdAt}
           expenses={gym.expenses}
           teams={gym.teams}
         />
-        <ChartTwo  members={members} gymCreationDate={gym.createdAt}/>
+        <ChartTwo members={members} gymCreationDate={gym.createdAt} />
         <ChartThree members={members} />
-        {/* <MapOne /> */}
-        {/* <div className="col-span-12 xl:col-span-8">
-          <TableOne />
-        </div>
-        <ChatCard /> */}
       </div>
     </>
   );

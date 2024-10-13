@@ -10,7 +10,8 @@ import { useDispatch } from "react-redux";
 import DeleteModal from "./DeleteModal";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
-const Expenses = ({ setAlert }) => {
+const Expenses = () => {
+  const [alert, setAlert] = useState({ message: "", type: "" });
   let gym = useSelector(selectLoggedGym);
   const gymCreationDate = new Date(gym.createdAt);
   const [months, setMonths] = useState([]);
@@ -50,6 +51,8 @@ const Expenses = ({ setAlert }) => {
     const currentDate = new Date();
     const startYear = gymCreationDate.getFullYear();
     const currentYear = currentDate.getFullYear();
+    const creationMonth = gymCreationDate.getMonth(); // Get the creation month (0-11)
+    const currentMonth = currentDate.getMonth(); // Get the current month (0-11)
 
     // Generate years starting from gym creation year to current year
     const generatedYears = [];
@@ -65,7 +68,19 @@ const Expenses = ({ setAlert }) => {
       );
     }
 
-    setMonths(monthsArray);
+    // Filter months for the current year that are later than or equal to the gym creation month
+    const filteredMonths =
+      currentYear === startYear
+        ? monthsArray.slice(creationMonth) // For the creation year, include the creation month and months after
+        : monthsArray; // For other years, take all months
+
+    // Include the current month if we're in the current year
+    if (currentYear === startYear && currentMonth >= creationMonth) {
+      // No need to filter out the months, as slice(creationMonth) already includes the current month
+    }
+
+    // Update state
+    setMonths(filteredMonths);
     setYears(generatedYears);
   }, []);
 
@@ -157,7 +172,7 @@ const Expenses = ({ setAlert }) => {
   console.log(filteredExpenses, "filteredExpenses");
 
   return (
-    <div className="max-w-6xl mx-auto p-3 bg-white  rounded-lg  space-y-8">
+    <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-800  rounded-lg  space-y-8">
       {deleteModalOpen && (
         <DeleteModal
           handelDelete={handleDelete}
@@ -165,31 +180,18 @@ const Expenses = ({ setAlert }) => {
           setdeleteModalOpen={setdeleteModalOpen}
         />
       )}
-      <h3 className="font-medium text-black dark:text-white">
-        Manage Monthly Expenses
-      </h3>
+      <div>
+        <h3 className="font-medium text-black dark:text-white">
+          Manage Monthly Expenses
+        </h3>
+        <p className="text-sm mt-1">
+          Track and manage your gym’s monthly expenses efficiently, ensuring
+          accurate budgeting and financial planning for smoother operations
+        </p>
+      </div>
       <form
         onSubmit={handleSubmit}
         className=" gap-6 text-sm shadow-lg px-3 py-5 mb-8">
-        <div className="w-full my-4 xl:w-1/2">
-          <label className="mb-2 block text-black dark:text-white">
-            Month <span className="text-meta-1">*</span>
-          </label>
-
-          <select
-            className="w-full rounded text-sm border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}>
-            {months.map((month, index) => (
-              <option
-                key={index}
-                value={month}>
-                {month}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div className="w-full my-4 xl:w-1/2">
           <label className="mb-2 block text-black dark:text-white">
             Year <span className="text-meta-1">*</span>
@@ -204,6 +206,24 @@ const Expenses = ({ setAlert }) => {
                 key={year}
                 value={year}>
                 {year}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-full my-4 xl:w-1/2">
+          <label className="mb-2 block text-black dark:text-white">
+            Month <span className="text-meta-1">*</span>
+          </label>
+
+          <select
+            className="w-full rounded text-sm border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}>
+            {months.map((month, index) => (
+              <option
+                key={index}
+                value={month}>
+                {month}
               </option>
             ))}
           </select>
@@ -264,7 +284,6 @@ const Expenses = ({ setAlert }) => {
       {/* Filter Section */}
       <div className="shadow-lg p-3">
         <div className="flex justify-end space-x-4 items-center ">
-
           <div>
             <select
               className="border border-gray-300 text-gray-700 px-2 w-[8rem] py-1 focus:outline-none focus:border-gray-400 transition duration-300 text-sm ease-in-out shadow-sm hover:shadow-md"
@@ -332,10 +351,12 @@ const Expenses = ({ setAlert }) => {
                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {item.expenseName}
                           </th>
-                          <td class="px-6 py-4">{item.totalAmount .toLocaleString("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      })}</td>
+                          <td class="px-6 py-4">
+                            {item.totalAmount.toLocaleString("en-IN", {
+                              style: "currency",
+                              currency: "INR",
+                            })}
+                          </td>
                           <td class="px-6 py-4">
                             <div className="text-sm flex gap-1 text-center">
                               <button

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 
@@ -30,14 +29,16 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
         .reduce((total, payment) => total + payment.amount, 0);
 
       const expensesForMonth = expenses
-      .filter((expense) => {
-        const expenseDate = new Date(expense.createdAt);
-        return (
-          expenseDate.getFullYear() == year &&
-          expense.month == new Date(0, month).toLocaleString("en", { month: "long" }) // Subtract 1 from month to account for zero-based indexing
-        );
-      })
-      .reduce((total, expense) => total + expense.totalAmount, 0);
+        .filter((expense) => {
+          const expenseDate = new Date(expense.createdAt);
+          return (
+            expenseDate.getFullYear() === year &&
+            expense.month === new Date(0, month).toLocaleString("en", {
+              month: "long",
+            })
+          );
+        })
+        .reduce((total, expense) => total + expense.totalAmount, 0);
 
       const teamSalaryTotal = teams.reduce(
         (total, team) => total + team.teamSalary,
@@ -72,8 +73,6 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
     setSelectedYear(Number(e.target.value)); // Update selected year
   };
 
-
-
   const options = {
     legend: {
       show: false,
@@ -93,7 +92,6 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
         left: 0,
         opacity: 0.1,
       },
-
       toolbar: {
         show: false,
       },
@@ -120,7 +118,6 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
       width: [2, 2],
       curve: "straight",
     },
-
     grid: {
       xaxis: {
         lines: {
@@ -141,14 +138,6 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
       colors: "#fff",
       strokeColors: ["#3056D3", "#80CAEE"],
       strokeWidth: 3,
-      strokeOpacity: 0.9,
-      strokeDashArray: 0,
-      fillOpacity: 1,
-      discrete: [],
-      hover: {
-        size: undefined,
-        sizeOffset: 5,
-      },
     },
     xaxis: {
       type: "category",
@@ -177,7 +166,7 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7 xl:col-span-8">
       <div className="flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap">
-        <div className="flex  w-full  gap-3 sm:gap-5">
+        <div className="flex w-full gap-3 sm:gap-5">
           <div className="flex w-full">
             <span className="mt-1 mr-2 flex h-4 w-full max-w-4 items-center justify-center rounded-full border border-primary">
               <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-primary"></span>
@@ -201,8 +190,8 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
               name="year"
               value={selectedYear}
               onChange={handleYearChange}
-              className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none">
-              {/* Dynamically populate year options */}
+              className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none"
+            >
               {Array.from({
                 length:
                   new Date().getFullYear() -
@@ -211,9 +200,7 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
               }).map((_, idx) => {
                 const year = new Date(gymCreationDate).getFullYear() + idx;
                 return (
-                  <option
-                    key={year}
-                    value={year}>
+                  <option key={year} value={year}>
                     {year}
                   </option>
                 );
@@ -223,17 +210,13 @@ const ChartOne = ({ payHistory, gymCreationDate, expenses, teams }) => {
         </div>
       </div>
 
-      <div>
-        <div
-          id="chartOne"
-          className="-ml-5">
-          <ReactApexChart
-            options={options}
-            series={state.series}
-            type="area"
-            height={350}
-          />
-        </div>
+      <div id="chartOne" className="-ml-5">
+        <ReactApexChart
+          options={options}
+          series={state.series}
+          type="area"
+          height={350}
+        />
       </div>
     </div>
   );
