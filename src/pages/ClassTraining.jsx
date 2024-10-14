@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { selectLoggedGym } from "../features/Auth/AuthSlice";
+import { selectAuthstatus, selectLoggedGym, updateServicesFeesAsync } from "../features/Auth/AuthSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectError } from "../features/member/MembersSlice";
 import Alert from "../components/Alert";
 import { calculateIncreaseDecresePercentage } from "../features/gym/GymSlice";
 import { IoIosArrowRoundDown, IoIosArrowRoundUp } from "react-icons/io";
+import TopLoadingBar from "../components/TopLoadingBar";
 
 const ClassTraining = () => {
   const Gym = useSelector(selectLoggedGym);
+  let status = useSelector(selectAuthstatus);
   const error = useSelector(selectError);
   const servicesOffered = Gym?.servicesOffered;
   const servicesPriceChangeHistory = Gym?.servicesPriceChangeHistory;
@@ -123,7 +125,8 @@ const ClassTraining = () => {
       : "N/A";
   };
   return (
-    <>   {alert.message && (
+    <>  {status == "loading" && <TopLoadingBar />}
+    {alert.message && (
       <Alert
         message={alert.message}
         type={alert.type}
@@ -268,56 +271,47 @@ const ClassTraining = () => {
             </tr>
           </thead>
           <tbody>
-            {servicesPriceChangeHistory ? (
-              servicesPriceChangeHistory.map((item, i) => {
-                return (
-                  <>
-                    <tr
-                      key={i}
-                      class="bg-white  border dark:bg-gray-800">
-                      <th
-                        scope="row"
-                        class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {
-                          servicesOffered
-                            .filter(
-                              (data) =>
-                                data.serviceNumber === item.serviceNumber
-                            )
-                            .map((data) => data.serviceName)[0]
-                        }
-                      </th>
-                      <td class="px-6 py-4">{item.subscriptionType}</td>
-                      <td class="px-6 py-4">{item.previousCharge}</td>
-                      <td class="px-6 py-4">{item.currentCharge}</td>
-                      <td class="px-6 py-4">
-                        {new Date(item.date).toLocaleDateString()}
-                      </td>
-                      <td class="px-6 py-4 flex items-center ">
-                        {calculateIncreaseDecresePercentage(
-                          item.previousCharge,
-                          item.currentCharge
-                        )}
-                        %
-                        {item.previousCharge < item.currentCharge ? (
-                          <IoIosArrowRoundUp
-                            size={20}
-                            color="green"
-                          />
-                        ) : (
-                          <IoIosArrowRoundDown
-                            size={20}
-                            color="red"
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  </>
-                );
-              })
-            ) : (
-              <p className="text-center">No data Found</p>
+          {servicesPriceChangeHistory ? (
+  servicesPriceChangeHistory
+    .slice() // Create a shallow copy of the array
+    .reverse() // Reverse the copy
+    .map((item, i) => {
+      return (
+        <tr key={i} class="bg-white border dark:bg-gray-800">
+          <th
+            scope="row"
+            class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            {
+              servicesOffered
+                .filter((data) => data.serviceNumber === item.serviceNumber)
+                .map((data) => data.serviceName)[0]
+            }
+          </th>
+          <td class="px-6 py-4">{item.subscriptionType}</td>
+          <td class="px-6 py-4">{item.previousCharge}</td>
+          <td class="px-6 py-4">{item.currentCharge}</td>
+          <td class="px-6 py-4">
+            {new Date(item.date).toLocaleDateString()}
+          </td>
+          <td class="px-6 py-4 flex items-center ">
+            {calculateIncreaseDecresePercentage(
+              item.previousCharge,
+              item.currentCharge
             )}
+            %
+            {item.previousCharge < item.currentCharge ? (
+              <IoIosArrowRoundUp size={20} color="green" />
+            ) : (
+              <IoIosArrowRoundDown size={20} color="red" />
+            )}
+          </td>
+        </tr>
+      );
+    })
+) : (
+  <p className="text-center">No data Found</p>
+)}
+
           </tbody>
         </table>
       </div>

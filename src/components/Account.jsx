@@ -191,16 +191,13 @@ const Account = ({ setAlert }) => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 dark:bg-gray-800 min-h-screen">
+    <div className="p-3 bg-gray-100 dark:bg-gray-800 min-h-screen">
       {/* Account Header Section */}
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-6 flex justify-between items-center relative">
         <div className="flex items-center space-x-4">
           <div className="relative group">
             <img
-              src={
-              gym?.gymLogo|| "one9logo.webp"
-
-              }
+              src={gym?.gymLogo || "one9logo.webp"}
               alt="Gym Logo"
               className="h-16 w-16 rounded-full object-cover"
             />
@@ -213,7 +210,7 @@ const Account = ({ setAlert }) => {
           </div>
           <div>
             <h1 className="text-xl font-semibold dark:text-white text-gray-800">
-              {`${profile.gymName}'s Gym`}
+              {`${profile.gymName}`}
             </h1>
             <p className="text-gray-600 text-sm">{profile.gymAddress}</p>
           </div>
@@ -419,9 +416,9 @@ const Account = ({ setAlert }) => {
 
         {/* Services Offered */}
         <div
-          className="bg-white shadow-lg rounded-lg p-6"
+          className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4"
           ref={newServiceRef}>
-          <h2 className="text-lg text-black font-medium mb-4">
+          <h2 className="text-lg text-black dark:text-white font-medium mb-4">
             Services Offered
           </h2>
           {gym.servicesOffered.length > 0 ? (
@@ -429,36 +426,30 @@ const Account = ({ setAlert }) => {
               {gym.servicesOffered.map((service, index) => (
                 <div
                   key={index}
-                  className=" items-center p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-                  {/* Service Icon */}
-
-                  {/* Service Information */}
+                  className="items-center p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
                   <div className="flex-grow">
-                    <h3 className="text-md font-medium text-gray-800 mb-4">
+                    <h3 className="text-md font-medium text-gray-800 dark:text-white mb-4">
                       {index + 1}. {service.serviceName}
                     </h3>
-
-                    {/* Service Charges */}
-                    <div className="text-sm text-gray-500 space-y-1">
+                    <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
                       <div className="flex gap-2">
-                        <h2 className="text-sm text-black font-medium mb-2">
-                          Monthly Charge :
+                        <h2 className="text-sm text-black dark:text-white font-medium mb-2">
+                          Monthly Charge:
                         </h2>
                         <span className="text-sm">
-                          {service.serviceCharge.quarterly}
+                        ₹ {service.serviceCharge.quarterly}
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <h2 className="text-sm text-black font-medium mb-2">
+                        <h2 className="text-sm text-black dark:text-white font-medium mb-2">
                           Quarterly Charge:
                         </h2>
                         <span className="text-sm">
-                          {" "}
-                          {service.serviceCharge.monthly}
+                        ₹ {service.serviceCharge.monthly}
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <h2 className="text-sm text-black font-medium mb-2">
+                        <h2 className="text-sm text-black dark:text-white font-medium mb-2">
                           Yearly Charge:
                         </h2>
                         <span className="text-sm">
@@ -471,40 +462,34 @@ const Account = ({ setAlert }) => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-400">
+            <p className="text-center text-gray-400 dark:text-gray-500">
               No services offered yet.
             </p>
           )}
 
           <button
-            className="mt-4 px-3 py-2 text-sm bg-blue-600 text-white  shadow"
+            className="mt-4 px-3 py-2 text-sm bg-blue-600 dark:bg-blue-500 text-white shadow"
             onClick={() => setIsAddingService(true)}>
             Add New Service
           </button>
+
           {isAddingService && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-                {/* Close Button */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
                 <button
                   onClick={() => setIsAddingService(false)}
-                  className="absolute top-2 right-2 text-gray-600 hover:text-gray-900">
+                  className="absolute top-2 right-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                   &times;
                 </button>
-
-                <h3 class="text-lg font-semibold text-center text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-center text-gray-900 dark:text-white">
                   Add New Service
                 </h3>
-
-                {/* Form */}
-
                 <form
                   onSubmit={handleAddService}
-                  class="p-4 md:p-5">
-                  <div class="grid gap-4 mb-4 grid-cols-2">
-                    <div class="col-span-2">
-                      <label
-                        for="name"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  className="p-4 md:p-5">
+                  <div className="grid gap-4 mb-4 grid-cols-2">
+                    <div className="col-span-2">
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Name
                       </label>
                       <input
@@ -513,15 +498,13 @@ const Account = ({ setAlert }) => {
                         placeholder="Service Name"
                         value={newService.serviceName}
                         onChange={handleServiceChange}
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        className="bg-gray-50 border border-gray-300 dark:bg-gray-600 dark:border-gray-500 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                         required
                       />
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                      <label
-                        for="price"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Price
+                    <div className="col-span-2 sm:col-span-1">
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Monthly Charge
                       </label>
                       <input
                         type="number"
@@ -529,15 +512,13 @@ const Account = ({ setAlert }) => {
                         placeholder="Monthly Charge"
                         value={newService.serviceCharge.monthly}
                         onChange={handleServiceChange}
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        className="bg-gray-50 border border-gray-300 dark:bg-gray-600 dark:border-gray-500 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                         required
                       />
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                      <label
-                        for="price"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Price
+                    <div className="col-span-2 sm:col-span-1">
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Quarterly Charge
                       </label>
                       <input
                         type="number"
@@ -545,15 +526,13 @@ const Account = ({ setAlert }) => {
                         placeholder="Quarterly Charge"
                         value={newService.serviceCharge.quarterly}
                         onChange={handleServiceChange}
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        className="bg-gray-50 border border-gray-300 dark:bg-gray-600 dark:border-gray-500 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                         required
                       />
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                      <label
-                        for="price"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Price
+                    <div className="col-span-2 sm:col-span-1">
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Yearly Charge
                       </label>
                       <input
                         type="number"
@@ -561,23 +540,23 @@ const Account = ({ setAlert }) => {
                         placeholder="Yearly Charge"
                         value={newService.serviceCharge.yearly}
                         onChange={handleServiceChange}
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        className="bg-gray-50 border border-gray-300 dark:bg-gray-600 dark:border-gray-500 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                         required
                       />
                     </div>
                   </div>
                   <button
                     type="submit"
-                    class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                     <svg
-                      class="me-1 -ms-1 w-5 h-5"
+                      className="me-1 -ms-1 w-5 h-5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg">
                       <path
-                        fill-rule="evenodd"
+                        fillRule="evenodd"
                         d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                        clip-rule="evenodd"></path>
+                        clipRule="evenodd"></path>
                     </svg>
                     Add new service
                   </button>
@@ -586,8 +565,6 @@ const Account = ({ setAlert }) => {
             </div>
           )}
         </div>
-
-
       </div>
 
       {/* //modal */}

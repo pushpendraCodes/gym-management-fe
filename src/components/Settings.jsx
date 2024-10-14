@@ -14,7 +14,7 @@ const Settings = () => {
   const [alert, setAlert] = useState({ message: "", type: "" });
 
   return (
-    <div className="bg-white dark:bg-gray-800 px-4 max-w-screen-xl xl:mx-auto">
+    <div className="bg-white dark:bg-gray-800 px-3 max-w-screen-xl xl:mx-auto">
       {alert.message && (
         <Alert
           message={alert.message}
@@ -46,7 +46,7 @@ const Settings = () => {
           </ul>
         </div>
 
-        <div className="col-span-1 sm:col-span-6 rounded-xl sm:px-8 sm:shadow">
+        <div className="col-span-1 sm:col-span-6 rounded-xl sm:px-2 sm:shadow">
           {activeSettings === "account" && (
             <Account setAlert={setAlert} />
           )}

@@ -21,7 +21,7 @@ const SubscriptionInfo = () => {
             />
           </div>
           <div>
-            <h1 className="text-xl dark:text-white font-semibold text-gray-800">one9 Gym solution</h1>
+            <h1 className="md:text-xl text-md  dark:text-white font-semibold text-gray-800">one9 Gym solution</h1>
             <div className="mt-2">
               <p className="text-gray-600 text-sm">
                 <span className="font-semibold">Contact:</span> +91 98765 43210
@@ -145,59 +145,65 @@ const SubscriptionInfo = () => {
         // qrCodeUrl={qrCodeUrl}
       />
 
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg text-black font-medium mb-4">Payment History</h2>
-        <div className="relative overflow-x-auto">
-          <table className="w-full border text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" className="px-6 py-3 rounded-e-lg">
-                  Sr.
-                </th>
-                <th scope="col" className="px-6 py-3 rounded-e-lg">
-                  Date
-                </th>
-                <th scope="col" className="px-6 py-3 rounded-s-lg">
-                  Amount
-                </th>
-                <th scope="col" className="px-6 py-3 rounded-e-lg">
-                  Method
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {gym.paymentHistory ? (
-                gym.paymentHistory.map((payment, i) => (
-                  <tr key={i} className="bg-white border dark:bg-gray-800">
-                    <td className="px-6 py-4">{i + 1}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-2 text-gray-600">
-                        <span className="text-sm font-medium">
-                          {new Date(payment.paymentDate).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </span>
-                      </div>
-                    </td>
-                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      ₹{payment.amountPaid}.00
-                    </th>
-                    <td className="px-6 py-4 text-sm font-medium">
-                      {payment.paymentMethod}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="text-center">No data Found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+<div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+  <h2 className="text-lg text-black dark:text-white font-medium mb-4">
+    Payment History
+  </h2>
+  <div className="relative overflow-x-auto">
+    <table className="w-full border text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+      <thead className="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" className="px-6 py-3 rounded-e-lg">
+            Sr.
+          </th>
+          <th scope="col" className="px-6 py-3 rounded-e-lg">
+            Date
+          </th>
+          <th scope="col" className="px-6 py-3 rounded-s-lg">
+            Amount
+          </th>
+          <th scope="col" className="px-6 py-3 rounded-e-lg">
+            Method
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {gym.paymentHistory ? (
+          gym.paymentHistory.map((payment, i) => (
+            <tr key={i} className="bg-white dark:bg-gray-800 border dark:border-gray-700">
+              <td className="px-6 py-4 text-gray-900 dark:text-white">{i + 1}</td>
+              <td className="px-6 py-4">
+                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                  <span className="text-sm font-medium">
+                    {new Date(payment.paymentDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+              </td>
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                ₹{payment.amountPaid}.00
+              </th>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                {payment.paymentMethod}
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="4" className="text-center text-gray-500 dark:text-gray-400">
+              No data found
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
     </div>
   );
 };

@@ -342,7 +342,7 @@ const Expenses = () => {
               </thead>
               <tbody>
                 {filteredExpenses ? (
-                  filteredExpenses.map((item, i) => {
+                  filteredExpenses.slice().reverse().map((item, i) => {
                     return (
                       <>
                         <tr class="bg-white border dark:bg-gray-800">

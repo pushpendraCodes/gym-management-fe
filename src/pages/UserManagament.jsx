@@ -377,7 +377,7 @@ const UserManagament = () => {
                   />
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex justify-between gap-2">
                   {/* Download button */}
                   <div className="relative inline-block text-left">
                     <button
@@ -402,7 +402,7 @@ const UserManagament = () => {
                     {isOpen && (
                       <div
                         id="dropdown"
-                        className="absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 z-10"
+                        className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 z-10"
                         role="menu">
                         <div
                           className="py-1"
@@ -434,24 +434,24 @@ const UserManagament = () => {
                   <button
                     onClick={() => setFormOpen(true)}
                     title="add new member"
-                    className="px-3 py-2 text-sm text-white bg-teal-500 border border-gray-200">
+                    className="md:px-3 px-2 text-xs py-2 md:text-sm text-white bg-teal-500 border border-gray-200">
                     Add Member +
                   </button>
                 </div>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="min-w-full text-sm mt-5 text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <table className="min-w-full table-auto text-sm mt-5 text-left rtl:text-right text-gray-500 dark:text-gray-400">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                       <th
                         scope="col"
-                        className="p-4">
+                        className="p-4 ">
                         Sr.
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3">
+                        className="px-6 py-3 w-28">
                         Name
                       </th>
                       <th
@@ -477,36 +477,56 @@ const UserManagament = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {members?.map((customer, i) => {
-                      return (
-                        <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                          <td className="w-4 py-2">
-                            {page * itemPerPage - itemPerPage + (i + 1)}
-                          </td>
-                          <th
-                            scope="row"
-                            className="flex items-center px-2 py-2 text-gray-900 whitespace-nowrap dark:text-white">
-                            <img
-                              className="w-10 h-10 rounded-full"
-                              src={
-                                customer?.picture ||
-                                (customer?.gender === 1
-                                  ? usermaleImage
-                                  : userfemaleImage)
-                              }
-                              alt={customer.name}
-                            />
-                            <div className="ps-1">
-                              <div className="text-sm text-base font-normal">
-                                {customer.firstName + " " + customer.lastName}
-                              </div>
-                              <div className="font-normal text-xs text-gray-500">
-                                {customer.mobile}
-                              </div>
+                    {members?.slice().reverse().map((customer, i) => (
+                      <tr
+                        key={customer.id}
+                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <td className="w-4 py-2">
+                          {page * itemPerPage - itemPerPage + (i + 1)}
+                        </td>
+                        <th
+                          scope="row"
+                          className=" min-w-40 flex items-center px-2 py-2 text-gray-900 whitespace-nowrap dark:text-white">
+                          <img
+                            className="w-10 h-10 rounded-full"
+                            src={
+                              customer?.picture ||
+                              (customer?.gender === 1
+                                ? usermaleImage
+                                : userfemaleImage)
+                            }
+                            alt={customer.name}
+                          />
+                          <div className="ps-1">
+                            <div className="text-sm text-base font-normal">
+                              {customer.firstName + " " + customer.lastName}
                             </div>
-                          </th>
-                          <td className="px-6 py-2">
-                            {new Date(customer.createdAt).toLocaleDateString(
+                            <div className="font-normal text-xs text-gray-500">
+                              {customer.mobile}
+                            </div>
+                          </div>
+                        </th>
+                        <td className="px-6 py-2 min-w-36">
+                          {new Date(customer.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
+                        </td>
+                        <td className="px-6 py-2 min-w-36">
+                          <div
+                            className={`flex items-center ${
+                              new Date(customer.dueDate) < new Date() ||
+                              (new Date(customer.dueDate) - new Date()) /
+                                (1000 * 60 * 60 * 24) <
+                                5
+                                ? "text-red-500"
+                                : ""
+                            }`}>
+                            {new Date(customer.dueDate).toLocaleDateString(
                               "en-US",
                               {
                                 year: "numeric",
@@ -514,89 +534,69 @@ const UserManagament = () => {
                                 day: "numeric",
                               }
                             )}
-                          </td>
-                          <td className="px-6 py-2">
-                            <div
-                              className={`flex items-center ${
-                                new Date(customer.dueDate) < new Date() ||
-                                (new Date(customer.dueDate) - new Date()) /
-                                  (1000 * 60 * 60 * 24) <
-                                  5
-                                  ? "text-red-500"
-                                  : ""
-                              }`}>
-                              {new Date(customer.dueDate).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-2">
-                            {getTrainingType(customer.training)}
-                          </td>
-                          <td className="px-6 py-2 text-sm flex flex-col md:flex-row gap-1 text-center">
-                            <button
-                              onClick={() => {
-                                dispatch(getMemberByIdAsync(customer.id));
-                                setId({ type: "edit", id: customer.id });
-                                setEditModal(true);
-                              }}
-                              className="px-1 border text-xs border-gray-300 mb-1 md:mb-0">
-                              Edit
-                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-2 min-w-36">
+                          {getTrainingType(customer.training)}
+                        </td>
+                        <td className="px-4 py-2 text-sm flex gap-2 min-w-40">
+                          <button
+                            onClick={() => {
+                              dispatch(getMemberByIdAsync(customer.id));
+                              setId({ type: "edit", id: customer.id });
+                              setEditModal(true);
+                            }}
+                            className="px-2 py-1 border text-xs border-gray-300">
+                            Edit
+                          </button>
 
-                            <EditModal
-                              setAlert={setAlert}
-                              reloaddata={reloaddata}
-                              userId={clickedId.id}
-                              isEditmodal={isEditmodal}
-                              setEditModal={setEditModal}
-                              id="edit"
-                            />
-                            <button
-                              onClick={() => {
-                                setdeleteModalOpen(true);
-                                setId({
-                                  type: "delete",
-                                  id: customer.id,
-                                  name: customer.firstName,
-                                });
-                              }}
-                              className="px-1 text-xs border border-gray-300 mb-1 md:mb-0">
-                              Delete
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                dispatch(getMemberByIdAsync(customer.id));
-                                dispatch(getFeesHistoryAsync(customer.id));
-                                setId({ type: "feespay", id: customer.id });
-                                setFeesModalOpen(true);
-                              }}
-                              aria-controls="fees-modal"
-                              title="Fees Payment"
-                              className={`px-1 text-xs text-white bg-emerald-400 border border-gray-200 ${
-                                isFeesModalOpen &&
-                                "bg-gray-200 dark:bg-gray-800"
-                              }`}>
-                              Pay Fees
-                            </button>
-                            <FeesModal
-                              id="fees-modal"
-                              modalOpen={isFeesModalOpen}
-                              setModalOpen={setFeesModalOpen}
-                              setAlert={setAlert}
-                              reloaddata={reloaddata}
-                              userId={clickedId.id}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
+                          <EditModal
+                            setAlert={setAlert}
+                            reloaddata={reloaddata}
+                            userId={clickedId.id}
+                            isEditmodal={isEditmodal}
+                            setEditModal={setEditModal}
+                            id="edit"
+                          />
+
+                          <button
+                            onClick={() => {
+                              setdeleteModalOpen(true);
+                              setId({
+                                type: "delete",
+                                id: customer.id,
+                                name: customer.firstName,
+                              });
+                            }}
+                            className="px-2 py-1 text-xs border border-gray-300">
+                            Delete
+                          </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dispatch(getMemberByIdAsync(customer.id));
+                              dispatch(getFeesHistoryAsync(customer.id));
+                              setId({ type: "feespay", id: customer.id });
+                              setFeesModalOpen(true);
+                            }}
+                            aria-controls="fees-modal"
+                            title="Fees Payment"
+                            className="px-2 py-1 text-xs text-white bg-emerald-400">
+                            Pay Fees
+                          </button>
+
+                          <FeesModal
+                            id="fees-modal"
+                            modalOpen={isFeesModalOpen}
+                            setModalOpen={setFeesModalOpen}
+                            setAlert={setAlert}
+                            reloaddata={reloaddata}
+                            userId={clickedId.id}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

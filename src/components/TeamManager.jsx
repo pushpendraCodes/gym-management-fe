@@ -6,9 +6,10 @@ import {
   updateTeamAsync,
 } from "../features/gym/GymSlice";
 import { useSelector } from "react-redux";
-import { selectLoggedGym } from "../features/Auth/AuthSlice";
+import { selectAuthstatus, selectLoggedGym } from "../features/Auth/AuthSlice";
 import Alert from "./Alert";
 import DeleteModal from "./DeleteModal";
+import TopLoadingBar from "./TopLoadingBar";
 
 const TeamManager = () => {
   const [alert, setAlert] = useState({ message: "", type: "" });
@@ -24,6 +25,7 @@ const TeamManager = () => {
   const [showSalaryInfo, setShowSalaryInfo] = useState(false);
   let dispatch = useDispatch();
   let gym = useSelector(selectLoggedGym);
+  let status = useSelector(selectAuthstatus);
   // Add team
 
   useEffect(() => {
@@ -122,6 +124,15 @@ const TeamManager = () => {
 
   return (
     <div className="p-6 bg-white shadow-default dark:border-strokedark dark:bg-boxdark min-h-screen">
+
+{status == "loading" && <TopLoadingBar />}
+      {alert.message && (
+        <Alert
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ message: "", type: "" })}
+        />
+      )}
       {deleteModalOpen && (
         <DeleteModal
           // reloaddata={reloaddata}
@@ -268,7 +279,7 @@ const TeamManager = () => {
           </thead>
           <tbody>
             {gym?.teams ? (
-              gym?.teams.map((team, i) => {
+              gym?.teams.slice().reverse().map((team, i) => {
                 return (
                   <>
                     <tr
