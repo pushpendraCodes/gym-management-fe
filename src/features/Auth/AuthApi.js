@@ -15,12 +15,11 @@ export const GymSignIn = (payload) => {
       );
       let data = await response.json();
       if (response.ok) {
-
-        console.log(data.gym,"data.gym");
+        console.log(data.gym, "data.gym");
         localStorage.setItem("user", JSON.stringify(data.gym));
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("refreshToken", data.refreshToken);
-        localStorage.setItem('justLoggedIn', 'true');
+        localStorage.setItem("justLoggedIn", "true");
         resolve({
           status: "success",
           gym: data.gym,
@@ -42,6 +41,51 @@ export const GymSignIn = (payload) => {
     }
   });
 };
+export const demoGymSignIn = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log("demo")
+      let response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/gym/demosignIn`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json", // Set Content-Type header
+          },
+
+        }
+      );
+      console.log(response,"response")
+      let data = await response.json();
+      console.log(data,"demo")
+      if (response.ok) {
+        console.log(data.gym, "data.gym");
+        localStorage.setItem("user", JSON.stringify(data.gym));
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+        localStorage.setItem("justLoggedIn", "true");
+        resolve({
+          status: "success",
+          gym: data.gym,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        });
+      } else {
+        reject({
+          status: "error",
+          message: data,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      reject({
+        status: "error",
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  });
+};
+
 export const GymSignOut = (payload) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -53,11 +97,10 @@ export const GymSignOut = (payload) => {
         {
           headers: {
             "Content-Type": "application/json",
-            authorization:localStorage.getItem("accessToken") ,
+            authorization: localStorage.getItem("accessToken"),
           },
         }
       );
-
 
       if (!response.ok) {
         throw new Error("Failed to logout");
@@ -81,7 +124,7 @@ export const GymSignOut = (payload) => {
   });
 };
 
-export const updateServicesFees = ({services,serviceChange}) => {
+export const updateServicesFees = ({ services, serviceChange }) => {
   return new Promise(async (resolve, reject) => {
     // console.log(payload, "payload");
     try {
@@ -93,13 +136,13 @@ export const updateServicesFees = ({services,serviceChange}) => {
             "Content-Type": "application/json",
             authorization: localStorage.getItem("accessToken"),
           },
-          body: JSON.stringify({servicesOffered:services,serviceChange}), // Merged into the same config object
+          body: JSON.stringify({ servicesOffered: services, serviceChange }), // Merged into the same config object
         }
       );
 
       let data = await response.json();
 
-      console.log(data,"data111")
+      console.log(data, "data111");
       localStorage.setItem("user", JSON.stringify(data.gym));
       resolve({
         status: "success",
@@ -126,18 +169,16 @@ export const forgotPasswordRequest = (email) => {
             "Content-Type": "application/json",
             // authorization: localStorage.getItem("accessToken"),
           },
-          body: JSON.stringify({email}),
+          body: JSON.stringify({ email }),
         }
       );
 
       let data = await response.json();
 
       if (response.ok) {
-
         resolve({
           status: "success",
-          message:data.message
-
+          message: data.message,
         });
       } else {
         reject({
@@ -154,7 +195,7 @@ export const forgotPasswordRequest = (email) => {
     }
   });
 };
-export const forgotPasswordReset = ({password,token}) => {
+export const forgotPasswordReset = ({ password, token }) => {
   return new Promise(async (resolve, reject) => {
     // console.log(payload, "payload");
     try {
@@ -166,18 +207,16 @@ export const forgotPasswordReset = ({password,token}) => {
             "Content-Type": "application/json",
             // authorization: localStorage.getItem("accessToken"),
           },
-          body: JSON.stringify({password}),
+          body: JSON.stringify({ password }),
         }
       );
 
       let data = await response.json();
 
       if (response.ok) {
-
         resolve({
           status: "success",
-          message:data.message
-
+          message: data.message,
         });
       } else {
         reject({
@@ -194,4 +233,3 @@ export const forgotPasswordReset = ({password,token}) => {
     }
   });
 };
-

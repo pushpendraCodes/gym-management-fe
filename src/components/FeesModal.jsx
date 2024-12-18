@@ -35,7 +35,7 @@ function FeesModal({
   const [fees, setfees] = useState(0);
   const [method, setMethod] = useState("");
 
-  console.log(type, fees, method, "type");
+  console.log(type, fees, method,loggedGym, "type");
 
   useEffect(() => {
     setType(Number(selectedMember?.SubscriptionType));
@@ -65,7 +65,7 @@ function FeesModal({
 
       // Find the matching service based on the training type
       for (let i = 0; i < loggedGym?.servicesOffered?.length; i++) {
-        if (loggedGym.servicesOffered[i].serviceName === trainingType) {
+        if (loggedGym.servicesOffered[i].serviceNumber === trainingType) {
           console.log("Matching service found");
 
           const serviceChargeForType =
@@ -175,7 +175,7 @@ function FeesModal({
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              <option value="">select</option>
+              {/* <option value="">select</option> */}
               <option value={1}>monthly</option>
               <option value={2}>quarterly</option>
               <option value={3}>yearly</option>

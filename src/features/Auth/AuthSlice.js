@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  demoGymSignIn,
   forgotPasswordRequest,
   forgotPasswordReset,
   GymSignIn,
@@ -32,6 +33,20 @@ export const SignInAsync = createAsyncThunk(
   async (body, { rejectWithValue }) => {
     try {
       const response = await GymSignIn(body);
+      console.log(response, "gymResponse");
+      return response;
+    } catch (error) {
+      console.error(error); // Log the error for debugging
+      return rejectWithValue(error.message.msg || "Failed to login");
+    }
+  }
+);
+
+export const demoSignInAsync = createAsyncThunk(
+  "auth/demosignin",
+  async (_ ,{ rejectWithValue }) => {
+    try {
+      const response = await demoGymSignIn();
       console.log(response, "gymResponse");
       return response;
     } catch (error) {
@@ -126,6 +141,23 @@ export const AuthSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(SignInAsync.rejected, (state, action) => {
+        state.status = "idle";
+        console.log(action.payload, "action.payload");
+        state.error = action.payload;
+      });
+    builder
+      .addCase(demoSignInAsync.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(demoSignInAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.error = null;
+        state.loggedGym = action.payload.gym;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+        state.isAuthenticated = true;
+      })
+      .addCase(demoSignInAsync.rejected, (state, action) => {
         state.status = "idle";
         console.log(action.payload, "action.payload");
         state.error = action.payload;

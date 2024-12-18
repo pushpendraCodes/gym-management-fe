@@ -133,7 +133,7 @@ const UserManagament = () => {
     lastName: "",
     gender: Number,
     mobile: Number,
-    // training: Number,
+    email: "",
     training: Number,
     SubscriptionType: Number,
     address: "",
@@ -149,6 +149,7 @@ const UserManagament = () => {
     SubscriptionType,
     address,
     payMethode,
+    email
   } = form;
   const [file, setFile] = useState(null);
   const [alert, setAlert] = useState({ message: "", type: "" });
@@ -235,13 +236,7 @@ const UserManagament = () => {
   const handelSubmit = async (e) => {
     e.preventDefault();
     let fees = subscriptionFees;
-    // const payHistory = [
-    //   {
-    //     amount: fees,
-    //     date:new Date().toISOString(),
-    //     method:payMethode
-    //   },
-    // ];
+
     let formData = new FormData();
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
@@ -251,6 +246,7 @@ const UserManagament = () => {
     formData.append("training", training);
     formData.append("SubscriptionType", Number(SubscriptionType));
     formData.append("payMethode", payMethode);
+    formData.append("email", email);
     // formData.append("payHistory", JSON.stringify(payHistory));
 
     // formData.append("gymId", loggedGym._id);
@@ -276,6 +272,7 @@ const UserManagament = () => {
         SubscriptionType: Number,
         address: "",
         payMethode: "",
+        email:""
       });
     } catch (err) {
       console.log(err, "err");
@@ -344,7 +341,7 @@ const UserManagament = () => {
             {/* Table */}
 
             <div class="">
-              <div className="px-5 flex flex-col md:flex-row items-center gap-1 justify-between py-4 border-b border-gray-100 dark:border-gray-700/60">
+              <div className="px-2 flex flex-col md:flex-row items-center gap-1 justify-between py-4 border-b border-gray-100 dark:border-gray-700/60">
                 <div className="flex-grow mb-2 md:mb-0">
                   <h2 className="font-semibold text-gray-800 dark:text-gray-100">
                     Members
@@ -884,6 +881,22 @@ const UserManagament = () => {
                     pattern="[0-9]{10}"
                     type="tel"
                     title="Enter a 10-digit phone number"
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-black dark:text-white">
+                    Email <span className="text-meta-1"></span>
+                  </label>
+                  <input
+                    required
+                    name="email"
+
+                    onChange={handelChange}
+                    placeholder="Enter your email id"
+                    // pattern="[0-9]{10}"
+                    type="email"
+                    title="Enter a email id"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
                 </div>

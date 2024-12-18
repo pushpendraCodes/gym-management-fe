@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   authError,
+  demoSignInAsync,
   selectAuthstatus,
   SignInAsync,
 } from "../features/Auth/AuthSlice";
@@ -9,7 +10,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Alert from "./Alert";
 import TopLoadingBar from "./TopLoadingBar";
-
 
 const SignIn = () => {
   let navigate = useNavigate();
@@ -30,6 +30,26 @@ const SignIn = () => {
 
       // Checking the response
       if (result && result.gym) {
+        console.log("Login successful:", result.gym);
+
+        // Navigate to homepage or dashboard after successful login
+        navigate("/");
+      }
+    } catch (err) {
+      console.error("Login failed:", error);
+      setAlert({ message: `Error: ${error || err}`, type: "error" });
+      // Handle error state or show notification to the user
+    }
+  };
+
+  const demosignIn = async (e) => {
+    e.preventDefault();
+
+    try {
+      const result = await dispatch(demoSignInAsync());
+      console.log(result, "result");
+      // Checking the response
+      if (result && result.payload.gym) {
         console.log("Login successful:", result.gym);
 
         // Navigate to homepage or dashboard after successful login
@@ -103,6 +123,11 @@ const SignIn = () => {
             Log In
           </button>
         </form>
+        <span
+          onClick={demosignIn}
+          className="text-sm mt-5  cursor-pointer underline">
+          demo signIn
+        </span>
         <div className="my-2">
           {alert.message && (
             <Alert

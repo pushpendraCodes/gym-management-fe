@@ -20,7 +20,7 @@ const LayOut = ({ children }) => {
           setSidebarOpen={setSidebarOpen}
         />
 
-        <main className="grow px-2 my-2">{children}</main>
+        <main className="grow px-1 my-2">{children}</main>
 
         {/* <Banner /> */}
       </div>
